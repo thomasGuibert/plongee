@@ -7,9 +7,11 @@
 ```mermaid
 flowchart TD
     ROOT["🧪 Lois Physiques"]
-    ROOT --> MARIO["Mariotte<br>P₁ × V₁ = P₂ × V₂<br>Application : volume poumons, bouteille"]
+    ROOT --> Mario["A temperature constante, le volume d’un gaz est inversement proportionne à là la pression exercée sur ce gaz"]
+    Mario --> MARIO_1["Mariotte<br>P₁ × V₁ = P₂ × V₂<br>Application : volume poumons, bouteille"]
     ROOT --> DALTON["Dalton<br>Pp = P_abs × %gaz<br>Application : narcose, toxicité O₂"]
     ROOT --> HENRY["Henry<br>Dissolution ∝ P_abs<br>Application : ADD, narcose"]
+    HENRY --> HENRY_1["A temperature constante et à saturation, la quantité de gaz dissous dans un liquide est proportionnelle à la pression partielle qu'exerce ce gaz sur le liquide"]
     ROOT --> ARCHI["Tout objet plongé dans un liquide recoit de la part de celui-ci une force verticale orientée de bas en haut et égale au poids du liquide déplacé"]
     ARCHI --> ARCHI_1["Archimède<br>Poussée = ρ × g × V<br>Application : flottabilité, stab"]
 

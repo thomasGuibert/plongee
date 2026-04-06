@@ -7,17 +7,22 @@
 ```mermaid
 flowchart TD
     ROOT["🦻 Barotraumatismes"]
-    ROOT --> BARO_OR["Oreilles<br>Douleur à la descente"]
+    ROOT --> BARO_OR["Oreilles<br>Douleur, vertiges, nausées, vomissements ⬇️"]
     BARO_OR --> BARO_OR1{Manœuvre<br>d'équilibrage ?}
     BARO_OR1 -->|Valsalva / Frenzel réussi| BARO_OR2["✅ Continuer"]
     BARO_OR1 -->|Échec| BARO_OR3["Remonter 1-2m<br>Réessayer lentement"]
     BARO_OR3 -->|Toujours échec| BARO_OR4["🛑 Arrêter la plongée<br>Consultation médicale"]
 
-    ROOT --> BARO_SI["Sinus<br>Douleur front / pommettes"]
-    BARO_SI --> BARO_SI1["🛑 Remonter progressivement<br>Ne pas forcer<br>Consultation ORL si persistant"]
+    ROOT --> BARO_DT["Dents ⬇️⬆️<br>Douleurs vives à la mâchoire"]
+    BARO_DT --> BARO_DT1["🛑Arrêter montée/descente <br> Remonter progressivement <br>Ne pas forcer"]
+    ROOT --> BARO_MK["Masque ⬇️<br> Yeux rouges et hématomes autour des yeux"]
 
-    ROOT --> BARO_PO["Poumons<br>Remontée trop rapide<br>Blocage respiration"]
-    BARO_PO --> BARO_PO1["🚨 GRAVISSIME<br>Surpression pulmonaire<br>Embolie gazeuse possible"]
+    ROOT --> BARO_SI["Sinus<br>Douleurs vives front / pommettes ⬇️⬆️"]
+    BARO_SI --> BARO_SI1["🛑 Arrêter montée/descente<br> Remonter progressivement<br>Ne pas forcer<br>Consultation ORL si persistant"]
+
+    ROOT --> BARO_PO["Poumons ⬆️<br>Toux et crachats sanglants <br>Douleurshoraciques intenses <br>Troubles respiratoires <br>Perte de conscience"]
+BARO_PO --> BARO_PO0["Remontée trop rapide<br>Blocage respiration"]
+    BARO_PO0 --> BARO_PO1["🚨 GRAVISSIME<br>Surpression pulmonaire<br>Embolie gazeuse possible"]
     BARO_PO1 --> BARO_PO2["🚨 O₂ 100%<br>Position demi-assise<br>SAMU 15 — Caisson hyperbare"]
 
     style ROOT fill:#0055aa,color:#fff
@@ -28,23 +33,34 @@ flowchart TD
 
 ---
 
-## 🫀 ADD — Accident de Décompression
+## 🫀 ADD — Accident de Désaturation
 
 ```mermaid
 flowchart TD
-    ROOT["🫀 ADD — Accident de Décompression"]
-    ROOT --> ADD_M["Mécanisme<br>Bullage N₂ — Loi de Henry<br>Remontée trop rapide ou NDL dépassée"]
-    ADD_M --> ADD_S{Type de signes}
-    ADD_S --> ADD_C["🟡 Cutanés<br>Prurit, marbrures<br>peau d'orange"]
-    ADD_S --> ADD_A["🟠 Articulaires<br>Douleurs coudes<br>épaules, genoux"]
-    ADD_S --> ADD_N["🔴 Neurologiques<br>Paresthésies, paralysie<br>troubles vision"]
-    ADD_S --> ADD_V["🔴 Vestibulaires<br>Vertige rotatoire<br>Nausées, vomissements"]
+    ROOT["🫀 ADD — Accident de Désaturation"]
+
+    ROOT --> MECA["O₂ consommé — CO₂ produit<br>N₂ non utilisé → stocké par le corps"]
+
+    MECA --> CHARGE["Charge en N₂<br>Dépend de la profondeur<br>et du temps au fond"]
+
+    CHARGE --> DESC["⬇️ Descente<br>Pression ambiante ↑<br>Corps en sous-saturation<br>Se charge en N₂"]
+    DESC --> FOND["↔️ Fond<br>Charge continue<br>jusqu'à saturation<br>Plus on est profond<br>plus la charge est rapide"]
+    FOND --> REM["⬆️ Remontée<br>Pression ambiante ↓<br>Corps en sursaturation<br>Se décharge en N₂"]
+
+    REM --> VITESSE{Vitesse de<br>remontée ?}
+    VITESSE -->|Contrôlée ≤ 10 m/min| OK["✅ Décharge progressive<br>N₂ éliminé sans formation de bulles"]
+    VITESSE -->|Trop rapide| BULLES["🔴 Chute de pression trop rapide<br>Formation de bulles de N₂<br>Bulles coincées dans articulations<br>ou tissus → grossissent<br>avec la baisse de pression<br>C'est l'accident de désaturation"]
+
+    BULLES ---> PAL["Prévention : le palier<br>Arrêter la remontée<br>Laisser le temps au N₂ de sortir<br>Temps calculé par tables ou ordinateur"]
+
+    BULLES --> ADD_S{Type de signes}
+    ADD_S --> ADD_C["🟡 Cutanés<br>boursouflures sur la peau<br> plaques rouges<br> démangeaisons"]
+    ADD_S --> ADD_B["🟠 Articulaires<br>Douleurs coudes<br>épaules<br> genoux"]
+    ADD_S --> ADD_A["🔴 Dorsale<br> Douleurs"]
+    ADD_S --> ADD_N["🔴 Cérébrale<br>Perte de connaissance <br> Fatigue <br> Vertiges<br>nausées<br>Problèmes d’audition<br>Maux de tête"]
     ADD_S --> ADD_P["🔴 Pulmonaires<br>Toux sèche<br>douleur thoracique, dyspnée"]
-    ADD_C & ADD_A & ADD_N & ADD_V & ADD_P --> ADD_Q{Encore<br>sous l'eau ?}
-    ADD_Q -->|Oui| ADD_R["Remonter immédiatement<br>Vitesse contrôlée<br>Palier sécu si possible"]
-    ADD_Q -->|Non| ADD_URG["🚨 URGENCE ABSOLUE"]
-    ADD_R --> ADD_URG
-    ADD_URG --> ADD_CT["✅ O₂ 100% en continu<br>Position allongée<br>Hydrater si conscient"]
+    ADD_C & ADD_B & ADD_A & ADD_N & ADD_P --> ADD_URG["🚨 URGENCE ABSOLUE"]
+    ADD_URG --> ADD_CT["✅ O₂ 100% 15L/min<br>Position confortable<br>Hydrater si conscient"]
     ADD_CT --> ADD_SEC["🚨 SAMU 15 / CROSS 196<br>→ Caisson hyperbare"]
 
     style ROOT fill:#0055aa,color:#fff
