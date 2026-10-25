@@ -1,0 +1,26 @@
+title: Cours de plongée
+description: Formation Plongeur Niveau 1 (PE20) — séances, techniques et prérequis.
+lang: fr
+url: "https://thomasguibert.github.io"
+baseurl: "/plongee"
+
+collections:
+  seances:
+    output: true
+    permalink: /seances/:name/
+
+defaults:
+  - scope: { path: "" }
+    values: { layout: page }
+  - scope: { path: "", type: seances }
+    values: { layout: seance }
+
+markdown: kramdown
+kramdown:
+  input: GFM
+
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor

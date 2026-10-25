@@ -1,0 +1,80 @@
+---
+layout: default
+---
+{%- assign seances = site.seances | sort: "numero" -%}
+<article class="seance">
+  <header class="seance-head">
+    <p class="eyebrow">
+      Séance {{ page.numero }}
+      {% if page.exemple %}<span class="badge">Exemple</span>{% endif %}
+    </p>
+    <h1>{{ page.title }}</h1>
+    {% if page.objectif %}<p class="objectif">{{ page.objectif }}</p>{% endif %}
+    <dl class="meta">
+      {% if page.lieu %}<div><dt>Lieu</dt><dd>{{ page.lieu }}</dd></div>{% endif %}
+      {% if page.duree %}<div><dt>Durée</dt><dd>{{ page.duree }}</dd></div>{% endif %}
+      {% if page.encadrement %}<div><dt>Encadrement</dt><dd>{{ page.encadrement }}</dd></div>{% endif %}
+    </dl>
+  </header>
+
+  {% if page.materiel %}
+  <section class="bloc">
+    <h2>Matériel</h2>
+    <ul class="liste-simple">
+      {% for m in page.materiel %}<li>{{ m }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <section class="bloc">
+    <h2>Déroulé</h2>
+    <ol class="temps-liste">
+      {% for tps in site.data.temps %}
+        {%- assign etape = page.temps | where: "id", tps.id | first -%}
+        {%- if etape -%}
+        <li class="temps temps-{{ tps.id }}">
+          <div class="temps-tete">
+            <h3>{{ tps.titre }}</h3>
+            <p>{{ tps.lieu }}{% if etape.duree %} · {{ etape.duree }}{% endif %}</p>
+          </div>
+          <div class="temps-corps">
+            {% if etape.techniques %}
+            <ul class="techs">
+              {% for id in etape.techniques %}<li>{% include technique.html id=id %}</li>{% endfor %}
+            </ul>
+            {% endif %}
+            {% if etape.consignes %}<div class="consignes">{{ etape.consignes | markdownify }}</div>{% endif %}
+          </div>
+        </li>
+        {%- endif -%}
+      {% endfor %}
+    </ol>
+  </section>
+
+  {% if page.evaluation %}
+  <section class="bloc">
+    <h2>Ce qu'on observe</h2>
+    <ul class="checklist">
+      {% for e in page.evaluation %}<li>{{ e }}</li>{% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if content != "" %}
+  <section class="bloc prose">
+    {{ content }}
+  </section>
+  {% endif %}
+
+  <nav class="seance-nav" aria-label="Autres séances">
+    {%- for s in seances -%}
+      {%- if s.url == page.url -%}
+        {%- assign i = forloop.index0 -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- assign iprev = i | minus: 1 -%}
+    {%- assign inext = i | plus: 1 -%}
+    {% if i > 0 %}{% assign p = seances[iprev] %}<a class="prev" href="{{ p.url | relative_url }}">← Séance {{ p.numero }} · {{ p.title }}</a>{% else %}<span></span>{% endif %}
+    {% if inext < seances.size %}{% assign n = seances[inext] %}<a class="next" href="{{ n.url | relative_url }}">Séance {{ n.numero }} · {{ n.title }} →</a>{% endif %}
+  </nav>
+</article>

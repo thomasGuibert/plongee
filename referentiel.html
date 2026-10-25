@@ -1,0 +1,47 @@
+---
+layout: default
+title: Référentiel N1
+permalink: /referentiel/
+---
+<section class="hero">
+  <p class="eyebrow">Référentiel</p>
+  <h1>Compétences et techniques du N1</h1>
+  <p class="lead">Les 10 compétences du PE20 (décembre 2025), complétées par le MFT.
+  Pour chaque technique : le temps de la séance où elle se pratique et ce qu'il faut maîtriser avant.</p>
+</section>
+
+<nav class="sommaire" aria-label="Compétences">
+  {% for c in site.data.competences %}
+  <a href="#{{ c.id }}" style="--c: {{ c.couleur }}">{{ c.titre }}</a>
+  {% endfor %}
+</nav>
+
+{% for c in site.data.competences %}
+{%- assign techs = site.data.techniques | where: "competence", c.id -%}
+<section class="competence" id="{{ c.id }}" style="--c: {{ c.couleur }}">
+  <header>
+    <h2>{{ c.titre }}</h2>
+    <p class="attendu">{{ c.attendu }}</p>
+  </header>
+  <ul class="techniques">
+    {% for t in techs %}
+    {%- assign tps = site.data.temps | where: "id", t.temps | first -%}
+    <li id="{{ t.id }}">
+      <div class="tech-ligne">
+        <strong>{{ t.titre }}</strong>
+        <span class="tag temps-{{ t.temps }}">{{ tps.titre }}</span>
+      </div>
+      {% if t.pourquoi %}<p class="pourquoi">{{ t.pourquoi }}</p>{% endif %}
+      <div class="prereq">
+        <span class="prereq-label">Prérequis</span>
+        {% if t.prerequis.size > 0 %}
+          <ul class="techs">{% for p in t.prerequis %}<li>{% include technique.html id=p %}</li>{% endfor %}</ul>
+        {% else %}
+          <span class="aucun">aucun</span>
+        {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}

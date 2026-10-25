@@ -1,0 +1,10 @@
+# Les trois temps d'une séance, dans l'ordre.
+- id: bord
+  titre: Au bord
+  lieu: Autour de la piscine ou sur le bateau
+- id: surface
+  titre: Sur l'eau
+  lieu: En surface
+- id: immersion
+  titre: Dans l'eau
+  lieu: En immersion

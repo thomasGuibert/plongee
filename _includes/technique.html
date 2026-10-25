@@ -1,0 +1,8 @@
+{%- comment -%} Puce d'une technique. Paramètre : id {%- endcomment -%}
+{%- assign t = site.data.techniques | where: "id", include.id | first -%}
+{%- if t -%}
+{%- assign c = site.data.competences | where: "id", t.competence | first -%}
+<a class="tech" style="--c: {{ c.couleur }}" href="{{ '/referentiel/' | relative_url }}#{{ t.id }}" title="{{ c.titre }}">{{ t.titre }}</a>
+{%- else -%}
+<span class="tech tech-inconnue">Technique inconnue : {{ include.id }}</span>
+{%- endif -%}

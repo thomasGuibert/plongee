@@ -1,0 +1,441 @@
+# Techniques du Niveau 1 (PE20 déc. 2025 + MFT).
+# temps : bord | surface | immersion — prerequis : ids d'autres techniques.
+- id: t_phys
+  titre: Notions de physique (pression, volume)
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: t_flott
+  titre: Flottabilité (positive, négative, neutre)
+  competence: theorie
+  temps: bord
+  prerequis:
+  - t_phys
+- id: t_baro
+  titre: Barotraumatismes et prévention
+  competence: theorie
+  temps: bord
+  prerequis:
+  - t_phys
+- id: t_desat
+  titre: 'Désaturation : courbe sans palier, ordi, table'
+  competence: theorie
+  temps: bord
+  prerequis:
+  - t_phys
+- id: t_essouf
+  titre: 'Essoufflement : causes, prévention'
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: t_froid
+  titre: Froid et dangers du milieu
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: t_regl
+  titre: Réglementation, prérogatives, carnet
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: t_charte
+  titre: Charte du plongeur responsable
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: t_perte
+  titre: Règle en cas de perte de palanquée
+  competence: theorie
+  temps: bord
+  prerequis: []
+- id: e_combi
+  titre: Enfiler / retirer la combinaison
+  competence: equiper
+  temps: bord
+  prerequis: []
+- id: e_gree
+  titre: Gréer / dégréer bloc, gilet, détendeur
+  competence: equiper
+  temps: bord
+  prerequis: []
+- id: e_verif
+  titre: Vérifier pression, gilet, détendeur
+  competence: equiper
+  temps: bord
+  prerequis:
+  - e_gree
+- id: e_cap
+  titre: Capelage / décapelage à sec
+  competence: equiper
+  temps: bord
+  prerequis:
+  - e_gree
+- id: e_lest
+  titre: Choisir son lestage
+  competence: equiper
+  temps: bord
+  prerequis:
+  - t_flott
+  - e_combi
+  pourquoi: 'Le lestage dépend de la combinaison et du milieu (eau douce ou salée) : il faut comprendre la flottabilité pour le choisir.'
+- id: e_entr
+  titre: 'Entretien : rinçage, désinfection, rangement'
+  competence: equiper
+  temps: bord
+  prerequis:
+  - e_gree
+- id: e_emb
+  titre: Embarquer, porter et ranger à bord
+  competence: equiper
+  temps: bord
+  prerequis:
+  - e_cap
+- id: e_eau
+  titre: S'équiper / recapeler dans l'eau
+  competence: equiper
+  temps: surface
+  prerequis:
+  - m_retrait
+  pourquoi: 'C''est le geste inverse du retrait du bloc en surface : on l''apprend juste après.'
+- id: v_tuba
+  titre: Ventilation sur tuba, vidage du tuba
+  competence: ventiler
+  temps: surface
+  prerequis: []
+- id: v_det
+  titre: Respirer sur détendeur en immersion
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - e_verif
+- id: v_regul
+  titre: Réguler sa ventilation (fréquence, amplitude)
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - v_det
+- id: v_dissoc
+  titre: Dissociation bucco-nasale
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - v_det
+- id: v_masque
+  titre: Vidage de masque
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - v_dissoc
+  pourquoi: Une fois qu'on respire normalement avec de l'eau sur le nez, on peut vider le masque sans stress.
+- id: v_embout
+  titre: Lâcher / reprise d'embout
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - v_det
+- id: v_apnee
+  titre: Courtes apnées inspi / expi
+  competence: ventiler
+  temps: immersion
+  prerequis:
+  - v_tuba
+  - i_oreilles
+  pourquoi: 'Les apnées se font sur quelques mètres et à faible profondeur : il faut déjà équilibrer ses oreilles.'
+- id: v_detsurf
+  titre: Détendeur plutôt que tuba en surface
+  competence: ventiler
+  temps: surface
+  prerequis:
+  - v_det
+  - v_tuba
+- id: i_oreilles
+  titre: Équilibrer ses oreilles (Valsalva, BTV, Frenzel)
+  competence: immerger
+  temps: immersion
+  prerequis:
+  - t_baro
+- id: i_phoque
+  titre: Phoque
+  competence: immerger
+  temps: surface
+  prerequis:
+  - i_oreilles
+  - q_gilet
+  - v_det
+  pourquoi: 'On descend en vidant le gilet et en expirant : il faut maîtriser les purges et équilibrer ses oreilles dès les premiers mètres.'
+- id: i_canard
+  titre: Canard
+  competence: immerger
+  temps: surface
+  prerequis:
+  - i_oreilles
+  - q_gilet
+  - p_ventral
+  pourquoi: Le canard demande un gilet vidé, un palmage efficace pour passer sous la surface et des oreilles qui suivent une descente rapide.
+- id: i_lest3
+  titre: 'Lestage ajusté : équilibré à 3 m'
+  competence: immerger
+  temps: immersion
+  prerequis:
+  - e_lest
+  - q_combo
+  pourquoi: 'On affine le lestage une fois qu''on sait s''équilibrer : à 3 m, gilet vide, on doit être neutre en fin de plongée.'
+- id: p_ventral
+  titre: Palmage ventral en surface
+  competence: propulser
+  temps: surface
+  prerequis: []
+- id: p_dorsal
+  titre: Palmage dorsal
+  competence: propulser
+  temps: surface
+  prerequis:
+  - p_ventral
+- id: p_costal
+  titre: Palmage costal
+  competence: propulser
+  temps: surface
+  prerequis:
+  - p_ventral
+- id: p_sust
+  titre: Palmage de sustentation
+  competence: propulser
+  temps: surface
+  prerequis:
+  - p_ventral
+- id: p_imm
+  titre: Palmage en immersion
+  competence: propulser
+  temps: immersion
+  prerequis:
+  - p_ventral
+  - v_det
+  - i_oreilles
+- id: p_capele
+  titre: Nage capelée (50 m)
+  competence: propulser
+  temps: surface
+  prerequis:
+  - p_dorsal
+  - r_gilsurf
+  - v_detsurf
+  pourquoi: 'Retour au bateau capelé : gilet gonflé, palmage dorsal, détendeur en bouche si la mer est formée.'
+- id: q_pb
+  titre: Poumon-ballast
+  competence: equilibrer
+  temps: immersion
+  prerequis:
+  - v_regul
+  - t_flott
+  pourquoi: Le poumon-ballast suppose une ventilation calme et régulière, et de comprendre la flottabilité.
+- id: q_gilet
+  titre: 'Gilet : inflateur, purges'
+  competence: equilibrer
+  temps: immersion
+  prerequis:
+  - e_verif
+  - t_flott
+- id: q_combo
+  titre: Poumon-ballast + gilet (±1 m)
+  competence: equilibrer
+  temps: immersion
+  prerequis:
+  - q_pb
+  - q_gilet
+  - p_sust
+  pourquoi: 'Le critère du PE20 : rester à ±1 m de la profondeur demandée, en statique comme en dynamique.'
+- id: m_saut
+  titre: Saut droit
+  competence: mise-a-leau
+  temps: bord
+  prerequis:
+  - e_cap
+  - e_verif
+  - q_gilet
+  - i_oreilles
+  - v_det
+  pourquoi: On saute gilet gonflé pour remonter tout de suite, détendeur en bouche et main sur le masque. Si on s'enfonce après l'entrée, il faut savoir équilibrer ses oreilles.
+- id: m_bascule
+  titre: Bascule arrière
+  competence: mise-a-leau
+  temps: bord
+  prerequis:
+  - m_saut
+  pourquoi: 'Même prérequis que le saut droit, avec la désorientation en plus : on la fait une fois le saut droit acquis.'
+- id: m_plage
+  titre: Départ plage
+  competence: mise-a-leau
+  temps: bord
+  prerequis:
+  - p_capele
+  - i_phoque
+  pourquoi: On entre capelé depuis la plage, on palme jusqu'au site puis on s'immerge.
+- id: m_retrait
+  titre: Retirer le bloc en surface, le passer au bateau
+  competence: mise-a-leau
+  temps: surface
+  prerequis:
+  - r_gilsurf
+  - v_detsurf
+- id: m_echelle
+  titre: Échelle, sortie de l'eau
+  competence: mise-a-leau
+  temps: surface
+  prerequis:
+  - r_gilsurf
+- id: c_signes
+  titre: Signes conventionnels
+  competence: communiquer
+  temps: immersion
+  prerequis: []
+- id: c_air
+  titre: Surveiller son air, annoncer mi-pression / réserve
+  competence: communiquer
+  temps: immersion
+  prerequis:
+  - c_signes
+  - e_verif
+- id: r_gilsurf
+  titre: Gonfler le gilet en surface
+  competence: surface
+  temps: surface
+  prerequis:
+  - q_gilet
+- id: r_tour
+  titre: Tour d'horizon
+  competence: surface
+  temps: surface
+  prerequis: []
+- id: r_vitesse
+  titre: Contrôler sa vitesse de remontée
+  competence: surface
+  temps: immersion
+  prerequis:
+  - q_combo
+  - t_baro
+  - t_desat
+  pourquoi: 'En remontant, l''air du gilet se dilate, surtout entre 10 m et la surface : il faut savoir purger pour ne pas accélérer.'
+- id: r_palier
+  titre: Tenir un palier, avec ou sans appui
+  competence: surface
+  temps: immersion
+  prerequis:
+  - r_vitesse
+- id: r_rec
+  titre: Remontée en expiration contrôlée (≤ 6 m)
+  competence: surface
+  temps: immersion
+  prerequis:
+  - v_det
+  - r_vitesse
+  - t_baro
+  pourquoi: Expirer en continu suppose de comprendre la surpression pulmonaire et de contrôler sa vitesse.
+- id: r_ordi
+  titre: Contrôler la remontée à l'ordinateur
+  competence: surface
+  temps: immersion
+  prerequis:
+  - t_desat
+  - r_vitesse
+- id: r_isolee
+  titre: Remontée isolée, se signaler en surface
+  competence: surface
+  temps: immersion
+  prerequis:
+  - r_vitesse
+  - r_tour
+  - r_gilsurf
+  - t_perte
+  pourquoi: Remonter seul à vitesse normale, faire un tour d'horizon, gonfler le gilet et se signaler.
+- id: s_proc
+  titre: 'Procédures du GP : réserve, froid'
+  competence: securite
+  temps: immersion
+  prerequis:
+  - c_air
+  - t_froid
+- id: s_panne
+  titre: 'Panne d''air : apnée expi 10 m, octopus du GP'
+  competence: securite
+  temps: immersion
+  prerequis:
+  - v_apnee
+  - v_embout
+  - p_imm
+  - c_signes
+  pourquoi: Apnée expiratoire de 10 m à l'horizontale vers le GP, puis respiration sur son octopus.
+- id: s_incid
+  titre: 'Réagir : essoufflement, crampe, malaise'
+  competence: securite
+  temps: immersion
+  prerequis:
+  - c_signes
+  - t_essouf
+  - v_regul
+- id: s_relais
+  titre: 'Intervention en relais : octopus, échange d''embout'
+  competence: securite
+  temps: immersion
+  prerequis:
+  - s_panne
+  - q_combo
+  pourquoi: 'On donne son octopus à un équipier en attendant le GP : il faut être stable soi-même pour ne pas couler avec lui.'
+- id: s_nodesc
+  titre: Ne pas descendre pendant une intervention
+  competence: securite
+  temps: immersion
+  prerequis:
+  - q_combo
+- id: s_obs
+  titre: Rôle d'observateur
+  competence: securite
+  temps: immersion
+  prerequis:
+  - c_signes
+  - q_combo
+  - p_imm
+- id: s_prof
+  titre: Respecter la profondeur max (celle du GP)
+  competence: securite
+  temps: immersion
+  prerequis:
+  - q_combo
+  - c_signes
+- id: n_aisance
+  titre: 'Aisance aquatique : déplacements sans appui'
+  competence: milieu
+  temps: immersion
+  prerequis:
+  - q_combo
+  - p_imm
+  pourquoi: On ne peut pas éviter le contact avec le fond tant qu'on ne maîtrise pas son équilibre.
+- id: n_contact
+  titre: Aucun contact faune / flore, flexibles fixés
+  competence: milieu
+  temps: immersion
+  prerequis:
+  - n_aisance
+- id: n_surplomb
+  titre: Pas d'expiration sous surplombs, lumière, bruit
+  competence: milieu
+  temps: immersion
+  prerequis:
+  - n_aisance
+  - t_charte
+- id: n_fond
+  titre: Ne pas remuer le fond, approche discrète
+  competence: milieu
+  temps: immersion
+  prerequis:
+  - n_aisance
+- id: n_nourrir
+  titre: Ni nourrissage ni harcèlement
+  competence: milieu
+  temps: immersion
+  prerequis:
+  - t_charte
+- id: n_especes
+  titre: Reconnaître les espèces courantes
+  competence: milieu
+  temps: immersion
+  prerequis: []

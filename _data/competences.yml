@@ -1,0 +1,57 @@
+# Les 10 compétences du PE20 (déc. 2025) + les connaissances théoriques.
+# famille : fondamentaux | evoluer-dans-leau | specifique | theorie
+- id: equiper
+  titre: S'équiper et se déséquiper
+  famille: fondamentaux
+  couleur: "#B7862B"
+  attendu: Le plongeur est capable de mettre en œuvre son équipement de manière autonome et d'en vérifier le bon fonctionnement.
+- id: mise-a-leau
+  titre: Se mettre à l'eau et sortir de l'eau
+  famille: fondamentaux
+  couleur: "#3A8DC4"
+  attendu: Le plongeur est capable de se mettre à l'eau et d'en sortir en sécurité pour lui et pour les autres plongeurs selon les modalités définies par le guide de palanquée.
+- id: immerger
+  titre: S'immerger
+  famille: evoluer-dans-leau
+  couleur: "#5A5FC8"
+  attendu: Le plongeur est capable de s'immerger selon la technique définie par le GP dans le respect de ses consignes.
+- id: propulser
+  titre: Se propulser
+  famille: evoluer-dans-leau
+  couleur: "#1E9A8A"
+  attendu: Le plongeur assure ses déplacements de manière autonome en surface comme en immersion.
+- id: ventiler
+  titre: Se ventiler
+  famille: evoluer-dans-leau
+  couleur: "#9B59B6"
+  attendu: Le plongeur gère et adapte sa ventilation, il réagit sereinement à une entrée volontaire ou accidentelle d'eau dans son masque.
+- id: equilibrer
+  titre: S'équilibrer
+  famille: evoluer-dans-leau
+  couleur: "#4E9A3A"
+  attendu: Le plongeur gère sa stabilité grâce au poumon ballast et au gilet de stabilisation de manière autonome.
+- id: milieu
+  titre: Respecter le milieu et l'environnement
+  famille: evoluer-dans-leau
+  couleur: "#8AA02C"
+  attendu: Le plongeur adopte une attitude éco-responsable, il évolue dans le respect de l'environnement subaquatique et en connaissance du milieu.
+- id: communiquer
+  titre: Communiquer
+  famille: fondamentaux
+  couleur: "#D0558F"
+  attendu: Le plongeur est en mesure de comprendre et d'échanger les informations utiles à la gestion de la plongée avec le GP et les autres plongeurs.
+- id: surface
+  titre: Retourner en surface
+  famille: fondamentaux
+  couleur: "#E07A2E"
+  attendu: Le plongeur gère son retour en surface en toute sécurité en respectant les consignes du GP.
+- id: securite
+  titre: Évoluer en sécurité
+  famille: specifique
+  couleur: "#D04545"
+  attendu: Le plongeur est familiarisé à la mise en œuvre des procédures liées aux différentes situations auxquelles il est confronté.
+- id: theorie
+  titre: Connaissances théoriques
+  famille: theorie
+  couleur: "#6F7F8A"
+  attendu: Évaluées à l'oral, lors des mises en situation pratiques. Il n'y a pas d'examen écrit. L'accent est mis sur la prévention.

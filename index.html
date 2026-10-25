@@ -1,0 +1,56 @@
+---
+layout: default
+title: Accueil
+---
+{%- assign seances = site.seances | sort: "numero" -%}
+<section class="hero">
+  <p class="eyebrow">Plongeur Niveau 1 · encadré à 20 m (PE20)</p>
+  <h1>Le cours, séance par séance</h1>
+  <p class="lead">Chaque séance suit le même fil : on prépare au bord, on travaille sur l'eau, puis dans l'eau.
+  Les techniques s'enchaînent dans un ordre où chacune s'appuie sur celles déjà vues.</p>
+</section>
+
+<section id="seances" class="bloc">
+  <h2>Séances</h2>
+  {% if seances.size == 0 %}
+    <p class="vide">Aucune séance pour l'instant.</p>
+  {% else %}
+  <ol class="cartes">
+    {% for s in seances %}
+    {%- assign nb = 0 -%}
+    {%- for e in s.temps -%}{%- assign nb = nb | plus: e.techniques.size -%}{%- endfor -%}
+    <li>
+      <a class="carte" href="{{ s.url | relative_url }}">
+        <span class="carte-num">{{ s.numero }}</span>
+        <span class="carte-corps">
+          <span class="carte-titre">{{ s.title }}{% if s.exemple %} <span class="badge">Exemple</span>{% endif %}</span>
+          {% if s.objectif %}<span class="carte-obj">{{ s.objectif }}</span>{% endif %}
+          <span class="carte-meta">{{ s.lieu }}{% if s.duree %} · {{ s.duree }}{% endif %} · {{ nb }} techniques</span>
+        </span>
+      </a>
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+</section>
+
+<section class="bloc">
+  <h2>Les trois temps d'une séance</h2>
+  <div class="trois-temps">
+    {% for tps in site.data.temps %}
+    <div class="temps-carte temps-{{ tps.id }}">
+      <h3>{{ tps.titre }}</h3>
+      <p>{{ tps.lieu }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="bloc">
+  <h2>Ressources</h2>
+  <ul class="liens">
+    <li><a href="{{ '/referentiel/' | relative_url }}">Référentiel N1</a> : les 10 compétences du PE20, toutes les techniques et leurs prérequis.</li>
+    <li><a href="{{ '/prepa-n2/N2_Materiel_Autonomie.html' | relative_url }}">Fiche N2 · Matériel et autonomie</a></li>
+    <li><a href="{{ '/prepa-n2/N2_Physiologie_Risques.html' | relative_url }}">Fiche N2 · Physiologie et risques</a></li>
+  </ul>
+</section>
