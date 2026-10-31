@@ -27,7 +27,7 @@ Résumé de l'état du projet (octobre 2026).
 ## État
 
 - Commit `1f55520` « Site GitHub Pages du cours de plongée N1 » poussé sur `main`.
-- Une seule séance écrite : `01-decouverte.md`, marquée `exemple: true`.
+- Séance 1 `01-decouverte.md` « Découvrir son matériel » : conçue par Thomas (questions guidées, oct. 2026), plus un exemple.
 - Build local vérifié avec la gem `github-pages` : il passe. Pages génère bien `/`,
   `/seances/01-decouverte/`, `/referentiel/` et les fiches `prepa-n2/*.html` (Markdown sans front
   matter), et tous les liens internes pointent vers des pages existantes.
