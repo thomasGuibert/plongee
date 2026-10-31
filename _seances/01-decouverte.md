@@ -1,57 +1,79 @@
 ---
-title: Découverte
+title: Découvrir son matériel
 numero: 1
-exemple: true
-objectif: Respirer sous l'eau en confiance et préparer son matériel avec l'aide du moniteur.
-lieu: Piscine, petit bain puis fosse à 3 m
-duree: 1 h 30
-encadrement: 1 moniteur E1 minimum pour 2 à 4 élèves
-
-materiel:
-  - Bloc gonflé, gilet, détendeur avec octopus
-  - Palmes, masque, tuba
-  - Lestage de 2 à 4 kg selon la combinaison
-  - Plaquette immergeable des signes
+objectif: "🎯 À la fin de la séance, l'élève sait gréer son bloc et capeler en surface avec l'aide du moniteur, utiliser l'inflateur et les purges, équilibrer ses oreilles à la descente et remonter en expiration contrôlée, à côté du moniteur."
+lieu: Piscine, 4 m maximum
+duree: 45 min (15 min au bord, 30 min dans l'eau)
+encadrement: 1 initiateur pour 1 élève, sécurité du bassin assurée par le responsable de bassin
 
 temps:
   - id: bord
-    duree: 25 min
-    techniques: [t_phys, e_combi, e_gree, e_verif, e_cap]
+    duree: 15 min
+    techniques: [e_gree, e_verif, t_baro, c_signes]
     consignes: |
-      - Présenter chaque pièce du scaphandre et son rôle avant de gréer.
-      - L'élève grée lui-même, le moniteur vérifie : robinet ouvert à fond puis un quart de tour, manomètre lu, inflateur testé.
-      - Expliquer simplement pourquoi la pression augmente avec la profondeur, avec l'exemple d'une bouteille d'eau vide qu'on enfonce.
+      - 🔧 **Gréage à deux** : l'élève manipule, le moniteur lui dit quoi faire.
+      - ✅ Vérifications de sécurité : pression au manomètre, embout, purges… tout est OK ?
+      - 🦺 Rôle du gilet, de l'inflateur et des purges. Stabilisation et poumon-ballast seulement évoqués : c'est le sujet de la séance 2.
+      - 🫁 Respirer sur le détendeur, 👌 signes de base (ça va, ça ne va pas, oreilles).
+      - 👂 **Oreilles** : en descendant, la pression augmente et peut faire mal. On équilibre avec le Valsalva (pincer le nez et souffler doucement), régulièrement, environ toutes les 5 secondes selon la vitesse de descente. Critère : aucune différence avec l'air libre.
 
   - id: surface
-    duree: 20 min
-    techniques: [p_ventral, v_tuba, c_signes]
+    techniques: [e_eau]
     consignes: |
-      - Palmage ventral sur une longueur, jambes tendues, palmes sous la surface.
-      - Respirer sur le tuba visage dans l'eau, puis vider le tuba par une expiration franche.
-      - Montrer les signes OK, ça ne va pas, monter, descendre. Les faire refaire à chaque élève.
+      - 🎒 Présentation du capelage en surface.
+      - 🔚 En fin de séance : décapelage en surface, puis dégréage au bord.
 
   - id: immersion
-    duree: 35 min
-    techniques: [v_det, i_oreilles, v_dissoc]
+    duree: 30 min (avec la surface)
+    techniques: [v_det, i_oreilles, q_gilet, r_rec]
     consignes: |
-      - À genoux dans le petit bain : respirer sur le détendeur, expirer longuement par la bouche.
-      - Descendre doucement le long du bord jusqu'à 3 m en équilibrant les oreilles dès le premier mètre.
-      - Laisser entrer un peu d'eau dans le masque et continuer à respirer par la bouche, sans vider tout de suite.
+      - 🟢 **15-20 min autour de 1 m** pour s'assurer que tout va bien :
+        1. Première descente à 1 m, avec pied : respirer sous l'eau.
+        2. Retour en surface : « comment ça va ? »
+        3. Nouvelle descente : jouer avec l'inflateur et les purges.
+        4. Retour en surface : débrief.
+      - 🔵 **10-15 min vers 3 m**, seulement si tout est OK : on reparle de la remontée en expiration et des oreilles, descente tout doucement, puis REC à côté du moniteur.
+      - ⏱️ En cas de retard, on ne va pas à 3 m : la séance s'arrête à 1 m.
 
 evaluation:
-  - Grée son bloc sans oubli, avec l'aide du moniteur
-  - Respire calmement sur le détendeur, sans bloquer l'expiration
-  - Équilibre ses oreilles avant d'avoir mal
-  - Comprend et refait les quatre signes de base
+  - 🔧 Maîtrise les gestes du gréage / dégréage (pourra-t-il le faire seul la semaine prochaine ?)
+  - 🎒 Maîtrise le capelage / décapelage en surface
+  - 👂 Descend sans difficulté, à l'aise quand il a pied
+  - 🦺 A manipulé l'inflateur et toutes les purges
+  - ⬆️ Ne remonte pas trop vite, expire en continu
+  - 🫁 Respiration lente et calme plutôt que rapide et saccadée
 ---
 
-## Points de vigilance
+## 🧭 Concevoir
 
-- Ne jamais forcer sur les oreilles : si ça bloque, on remonte d'un mètre et on recommence.
-- Rappeler qu'on ne bloque jamais sa respiration en remontant, même de 3 m.
-- Garder chaque élève à portée de main pendant toute la partie en immersion.
+**📍 Place dans le cursus** : première séance après le baptême. La séance 2 portera sur les palmes et le poumon-ballast.
 
-## Débriefing
+**💡 Pourquoi commencer par le matériel ?** Parce que c'est ce qui garde le plongeur en vie : plus vite il le maîtrise, plus vite il est à l'aise sous l'eau. Et c'est ce qu'on manipule forcément à chaque séance. L'alternative (propulsion, apnée, poumon-ballast) vient ensuite.
 
-Faire dire à chaque élève ce qui a été le plus facile et le plus difficile.
-Noter sur la fiche de suivi les techniques à reprendre à la séance 2.
+**🪜 Stratégie** : progression par paliers. L'élève manipule, le moniteur guide. On ne passe à l'étape suivante que si tout va bien.
+
+## 🤝 Accueil et organisation
+
+- 🏊 Avant la séance, elle est présentée au responsable de bassin : qui encadre qui, et sur quel sujet. Lui gère la sécurité du bassin (numéro d'urgence, emplacement, matériel) et les papiers ; l'initiateur gère l'élève.
+- 👋 À l'arrivée de l'élève : sa forme et son état d'esprit, ce qu'il a retenu du baptême, ce qu'il veut revivre ou éviter, et **pourquoi** (évaluation initiale).
+
+## 👂 Si les oreilles ne passent pas
+
+Ralentir, voire s'arrêter. Faire le signe « oreilles ». On attend que ça se débloque : ça peut prendre 2 secondes comme 5 minutes. On peut remonter un peu pour faciliter l'équilibrage, et on avance tout doucement.
+
+## 🛟 Plan B si l'élève n'est pas à l'aise
+
+On observe : réponse à « ça va ? », rythme de la respiration, signes d'anxiété. Si ça ne va pas, on simplifie et on traite les problèmes un par un : retirer un équipement, juste la tête sous l'eau avec le détendeur en bouche, régler le masque… On garde ce qui est OK. Pas de descente tant que tout n'est pas OK.
+
+## 🤧 Variante : élève enrhumé
+
+Pas d'immersion : le rhume est une contre-indication temporaire *(à confirmer avec le validateur)*. Les premiers mètres sont ceux où la pression varie le plus en proportion, donc rester à 1-2 m ne protège pas les sinus. La séance reste en surface : explications orientées « se déplacer », longueurs en palmes, capelage, longueurs capelé, détendeur la tête dans l'eau (à genoux dans 1 m), inflateur et purges en surface.
+
+## 💬 Bilan à la sortie de l'eau
+
+1. 💪 La forme physique d'abord : pas d'essoufflement, pas de stress.
+2. 🙂 L'état d'esprit : pas de peur ni d'angoisse pour la prochaine fois.
+3. 🗣️ Débrief de ce qu'on a fait, de la façon dont il a été évalué et de ce que le moniteur a constaté.
+4. 📅 Le programme suivant : palmes et poumon-ballast, ou au choix de l'initiateur suivant.
+
+📝 Débrief avec le responsable de bassin pour passer en **ECA** sur la fiche de suivi : gréage / dégréage, capelage / décapelage et REC (seulement si la séance est allée jusqu'à 3 m).
