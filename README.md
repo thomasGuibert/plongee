@@ -9,7 +9,7 @@ Chaque séance se déroule en trois temps : **au bord** (piscine ou bateau), **s
 
 | Dossier / fichier | Contenu |
 |---|---|
-| `_seances/` | Une séance = un fichier Markdown (`01-decouverte.md`, …) |
+| `_seances/` | Une séance = un fichier Markdown (`NN-nom.md`) |
 | `_data/techniques.yml` | Toutes les techniques du N1 : compétence, temps, prérequis |
 | `_data/competences.yml` | Les 10 compétences du PE20 + la théorie, avec leur couleur |
 | `_data/temps.yml` | Les trois temps d'une séance |
@@ -20,7 +20,7 @@ Chaque séance se déroule en trois temps : **au bord** (piscine ou bateau), **s
 
 ## Ajouter une séance
 
-Créer `_seances/02-ventilation.md` en copiant la séance 1, puis modifier l'en-tête :
+Créer `_seances/NN-nom.md` avec un en-tête comme celui-ci :
 
 ```yaml
 ---
