@@ -10,10 +10,10 @@ layout: default
     <h1>{{ page.nom }}</h1>
     <p>{{ page.attendu }}</p>
   </div>
-  <div class="savoirs">
-    <div><h2>Savoir-faire · technique</h2><p>{{ page.savoir_faire }}</p></div>
-    <div><h2>Savoir-être · comportement</h2><p>{{ page.savoir_etre }}</p></div>
-    <div><h2>Savoir · théorie</h2><p>{{ page.savoir }}</p></div>
+  <div class="savoirs-acc">
+    <details><summary>Savoir-faire · technique</summary><p>{{ page.savoir_faire }}</p></details>
+    <details><summary>Savoir-être · comportement</summary><p>{{ page.savoir_etre }}</p></details>
+    <details><summary>Savoir · théorie</summary><p>{{ page.savoir }}</p></details>
   </div>
 </section>
 
@@ -21,11 +21,15 @@ layout: default
 {%- for c in page.capacites -%}
   {%- assign d = site.data.capacites[c.id] -%}
   {%- if d -%}
-  <article class="capa" id="{{ c.id }}">
+  <article class="capa" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
+    <script type="application/json" class="capa-data">{{ d | jsonify }}</script>
     <div class="capa-top">
-      <div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div>
-      <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a></span>
+      <div class="capa-titre"><span class="capa-tools"><button type="button" class="btn-icone" data-action="edit" title="Modifier" aria-label="Modifier {{ c.nom | escape }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg></button><button type="button" class="btn-icone ok" data-action="valider" title="Valider" aria-label="Valider" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="btn-icone ko" data-action="annuler" title="Annuler" aria-label="Annuler" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span><div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div></div>
+      <span class="capa-actions">
+        <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %}{% if d.brouillon %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a>{% endif %}</span>
+      </span>
     </div>
+    <div class="capa-body">
     {%- if d.rattachement %}<p class="comment">{{ d.rattachement }}</p>{% endif %}
     <dl>
       {%- for f in d.blanc %}<dt>{{ f.champ }}</dt><dd>{% include champ.html f=f %}</dd>{% endfor %}
@@ -45,12 +49,17 @@ layout: default
       {%- endif -%}
     {%- endfor -%}
     </div>
+    </div>
   </article>
   {%- else -%}
-  <article class="capa empty" id="{{ c.id }}">
-    <div class="capa-top"><h3>{{ c.nom }}</h3><span class="pill todo">aucune séance</span></div>
+  <article class="capa empty" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
+    <div class="capa-top"><div class="capa-titre"><span class="capa-tools"><button type="button" class="btn-icone" data-action="edit" title="Modifier" aria-label="Modifier {{ c.nom | escape }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg></button><button type="button" class="btn-icone ok" data-action="valider" title="Valider" aria-label="Valider" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="btn-icone ko" data-action="annuler" title="Annuler" aria-label="Annuler" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span><h3>{{ c.nom }}</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span></span></div>
+    <div class="capa-body"></div>
   </article>
   {%- endif -%}
 {%- endfor -%}
 </div>
 </div>
+
+<script>window.EDITION = { repo: "thomasGuibert/plongee", branche: "main", brouillons: "{{ '/brouillons/' | relative_url }}" };</script>
+<script src="{{ '/assets/js/edition.js' | relative_url }}"></script>

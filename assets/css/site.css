@@ -155,3 +155,46 @@ details[open] > .stile small { color: var(--on-yellow); }
 @media (max-width: 560px) { .sdetail .row { grid-template-columns: 1fr; } }
 .section-title { font-size: 1.5rem; }
 .comp-page { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* Édition depuis le site */
+.capa-titre { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.capa-tools { display: flex; gap: 6px; flex: none; }
+.capa-actions { display: flex; gap: 8px; align-items: center; }
+.btn-icone { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.btn-icone svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-icone:hover { color: var(--accent); border-color: var(--accent); }
+.btn-icone.ok { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-icone.ko:hover { color: var(--note-rouge); border-color: var(--note-rouge); }
+.btn-icone:disabled { opacity: .5; cursor: wait; }
+.btn-icone:focus-visible, .btn-lien:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.capa.en-edition { box-shadow: 0 0 0 2px var(--accent); }
+.ed-form { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+.ed-form fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px 12px; margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ed-form fieldset.ed-seance { border-color: var(--yellow); background: var(--yellow-soft); }
+.ed-form legend { font-family: var(--f-display); font-weight: 700; padding: 0 4px; }
+.ed-seances { display: flex; flex-direction: column; gap: 12px; }
+.ed-champ { display: flex; flex-direction: column; gap: 4px; }
+.ed-champ label { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ed-champ.jaune label { color: var(--ink); }
+.ed-form textarea, .ed-form input { width: 100%; font: inherit; font-size: 15px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; resize: vertical; }
+.ed-form textarea:focus, .ed-form input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.ed-aide { margin: 0; font-size: 13px; color: var(--muted); }
+.ed-jeton { display: flex; flex-direction: column; gap: 6px; border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; }
+.ed-jeton label { font-size: 13px; font-weight: 700; }
+.ed-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.ed-statut { font-size: 14px; color: var(--muted); }
+.btn-lien { align-self: flex-start; font: inherit; font-size: 14px; background: none; border: 0; padding: 4px 0; color: var(--accent); cursor: pointer; text-decoration: underline; }
+.ed-ok { margin: 10px 0 0; font-size: 14px; color: var(--note-vert); }
+
+/* Savoirs repliables sous l'en-tête de compétence : un accordéon par savoir */
+.savoirs-acc { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; background: var(--surface); }
+.savoirs-acc details + details { border-top: 1px solid var(--line); }
+.savoirs-acc summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-weight: 700; font-size: 14px; color: var(--ink); }
+.savoirs-acc summary::-webkit-details-marker { display: none; }
+.savoirs-acc summary::before { content: ""; flex: none; width: 7px; height: 7px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; }
+.savoirs-acc details[open] > summary::before { transform: rotate(45deg); }
+.savoirs-acc summary:hover { color: var(--accent); }
+.savoirs-acc summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.savoirs-acc p { margin: 0; padding: 0 16px 12px 33px; font-size: 14.5px; max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { .savoirs-acc summary::before { transition: none; } }
+.btn-icone[hidden], .ed-jeton[hidden], .btn-lien[hidden] { display: none; }

@@ -11,6 +11,10 @@ Site Jekyll publié avec GitHub Pages : <https://thomasguibert.github.io/plongee
 
 L'accueil affiche la carte de progression ; un clic sur une compétence ouvre sa page.
 
+## Modifier une capacité depuis le site
+
+Sur la page d'une compétence, le crayon en haut à gauche d'une capacité ouvre l'édition (bloc blanc et séances) ; ✓ enregistre, ✗ annule. L'enregistrement écrit `_data/capacites/<id>.yml` sur `main` via l'API GitHub, avec un jeton personnel « fine-grained » (dépôt `plongee`, permission *Contents : Read and write*) conservé dans le navigateur. Le site se met à jour une à deux minutes plus tard. Les commits faits depuis le site arrivent sur `main` : faire un `git pull --rebase` avant de travailler en local.
+
 ## Voir le site en local
 
 Nécessite Ruby et Bundler.
