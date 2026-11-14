@@ -334,3 +334,20 @@ details[open] > .stile small { color: var(--on-yellow); }
 .sdetail .row.notes.en-edition { box-shadow: inset 0 0 0 2px var(--accent); }
 .ed-note { display: flex; flex-direction: column; gap: 8px; }
 .ed-note .ed-jeton input { width: 100%; font: inherit; font-size: 14px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+
+/* Corbeille des compétences (bas de l'accueil) */
+.corbeille { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 12px; }
+.corbeille > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding: 6px 0; font-weight: 700; color: var(--muted); }
+.corbeille > summary::-webkit-details-marker { display: none; }
+.corbeille > summary::before { content: ""; flex: none; width: 6px; height: 6px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+.corbeille[open] > summary::before { transform: rotate(45deg); }
+.corbeille > summary:hover { color: var(--accent); }
+.corbeille > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.corbeille-liste { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.jetee { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 8px 12px; background: var(--surface); border: 1px dashed var(--line); border-radius: 8px; }
+.jetee > a { color: var(--muted); }
+.jetee .ed-etat, .jetee .ed-jeton { flex-basis: 100%; }
+.jetee .ed-jeton input { width: 100%; font: inherit; font-size: 14px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.lane.restauree { border-style: dashed; border-color: var(--accent); }
+.bandeau-corbeille { margin: 0; padding: 10px 14px; border-radius: 8px; border: 2px dashed var(--muted); color: var(--ink); font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .corbeille > summary::before { transition: none; } }

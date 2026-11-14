@@ -263,7 +263,35 @@
     corps.content = b64(texteYaml);
     return api(chemin, jeton, { method: "PUT", body: JSON.stringify(corps) });
   }
+  function lireFichier(chemin, jeton) {
+    return api(chemin + "?ref=" + CFG.branche + "&t=" + Date.now(), jeton, { cache: "no-store" }).then(function (r) {
+      if (r.status === 401 || r.status === 403) throw new Error("jeton");
+      if (r.status === 404) throw new Error("fichier introuvable");
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json().then(function (j) {
+        var bin = atob((j.content || "").replace(/\s/g, "")), octets = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) octets[i] = bin.charCodeAt(i);
+        return { sha: j.sha, texte: new TextDecoder().decode(octets) };
+      });
+    });
+  }
   function enregistrer(chemin, message, texteYaml, jeton) {
+    if (typeof texteYaml === "function") {
+      // Modification d'un fichier existant : on relit son contenu actuel, puis on le transforme.
+      var transformer = texteYaml;
+      var essaiT = function (dernier) {
+        return lireFichier(chemin, jeton).then(function (f) {
+          return ecrire(chemin, message, transformer(f.texte), f.sha, jeton);
+        }).then(function (r) {
+          if (r.status === 401 || r.status === 403) throw new Error("jeton");
+          if ((r.status === 409 || r.status === 422) && !dernier) return essaiT(true);
+          if (r.status === 409) throw new Error("conflit");
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json().then(function (j) { SHA[chemin] = j && j.content ? j.content.sha : null; });
+        });
+      };
+      return essaiT(false);
+    }
     var essai = function (sha, dernier) {
       return ecrire(chemin, message, texteYaml, sha, jeton).then(function (r) {
         if (r.status === 401 || r.status === 403) throw new Error("jeton");
@@ -392,7 +420,7 @@
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-action]");
     if (!b) return;
-    if (b.closest(".board")) { actionAccueil(b); return; }
+    if (b.closest(".board, .corbeille")) { actionAccueil(b); return; }
     var bloc = b.closest(".bloc-edit");
     if (bloc) { actionBloc(bloc, b); return; }
     var article = b.closest(".capa");
@@ -725,7 +753,7 @@
     e.className = "ed-etat " + quoi;
     if (quoi === "attente") e.textContent = "En attente d'enregistrement…";
     else if (quoi === "envoi") e.textContent = "Enregistrement sur GitHub…";
-    else if (quoi === "ok") e.textContent = carte.classList.contains("supprimee") ? "Supprimée. Le site se met à jour dans une à deux minutes." : "Créée. Sa page sera en ligne dans une à deux minutes.";
+    else if (quoi === "ok") e.textContent = { corbeille: "Mise à la corbeille. Le site se met à jour dans une à deux minutes.", restaurer: "Restaurée. Le site se met à jour dans une à deux minutes.", creer: "Créée. Sa page sera en ligne dans une à deux minutes." }[carte.dataset.opType] || "Enregistré.";
     else e.innerHTML = esc(message) + ' <button type="button" class="btn-lien" data-action="reessayer-comp">Réessayer</button>';
   }
   function jetonCarte(carte) {
@@ -734,9 +762,16 @@
     if (!j && !champ) carte.insertAdjacentHTML("beforeend", JETON().replace(" hidden", ""));
     return j;
   }
+  function marquerCorbeille(oui) {
+    return function (texte) {
+      texte = texte.replace(/\r\n/g, "\n").replace(/^corbeille:.*\n/m, "");
+      return oui ? texte.replace(/^---\n/, "---\ncorbeille: true\n") : texte;
+    };
+  }
   function lancerOp(carte, op, jeton) {
-    var texte = op.type === "creer" ? "---\n" + versYaml(op.data) + "---\n" : null;
-    var message = (op.type === "creer" ? "Créer" : "Supprimer") + " la compétence « " + op.nom + " » depuis le site";
+    carte.dataset.opType = op.type;
+    var texte = op.type === "creer" ? "---\n" + versYaml(op.data) + "---\n" : marquerCorbeille(op.type === "corbeille");
+    var message = { creer: "Créer", corbeille: "Mettre à la corbeille", restaurer: "Restaurer" }[op.type] + " la compétence « " + op.nom + " » depuis le site";
     envoyer("op-" + op.t, { chemin: op.chemin, message: message, texte: texte, data: op }, jeton, function (quoi, m) {
       etatCarte(carte, quoi, m);
       if (quoi === "ok") { ecrireTampon("op-" + op.t, null); op.envoye = true; majOp(op); }
@@ -753,18 +788,54 @@
     nouvelle.parentNode.insertBefore(div, nouvelle);
     return div;
   }
+  function majCorbeille() {
+    var n = document.querySelectorAll(".corbeille-liste .jetee").length, nb = document.querySelector(".corbeille-nb");
+    if (nb) { nb.textContent = n; nb.nextSibling.textContent = " compétence" + (n > 1 ? "s" : ""); }
+  }
+  function versCorbeille(carte) {
+    var li = document.createElement("li");
+    li.className = "jetee";
+    li.dataset.chemin = carte.dataset.chemin; li.dataset.nom = carte.dataset.nom; li.dataset.ordre = carte.dataset.ordre || "";
+    var lien = carte.querySelector(".lane-head");
+    li.innerHTML = '<a href="' + esc(lien ? lien.getAttribute("href") : "#") + '">' + esc(carte.dataset.nom) + '</a> <button type="button" class="btn-lien" data-action="restaurer-comp">Restaurer</button>';
+    document.querySelector(".corbeille-liste").appendChild(li);
+    carte.remove();
+    majCorbeille();
+    return li;
+  }
+  function horsCorbeille(li) {
+    var div = document.createElement("section");
+    div.className = "lane dim restauree";
+    div.dataset.chemin = li.dataset.chemin; div.dataset.nom = li.dataset.nom; div.dataset.ordre = li.dataset.ordre;
+    div.innerHTML = '<div class="lane-top"><a class="lane-head" href="' + esc(li.querySelector("a").getAttribute("href")) + '"><span class="eyebrow">Compétence</span><h2>' + esc(li.dataset.nom) + "</h2></a></div>";
+    var nouvelle = document.querySelector(".lane-nouvelle");
+    nouvelle.parentNode.insertBefore(div, nouvelle);
+    li.remove();
+    majCorbeille();
+    return div;
+  }
   function actionAccueil(b) {
-    var a = b.dataset.action, carte = b.closest(".lane");
+    var a = b.dataset.action, carte = b.closest(".lane, .jetee");
+    if (a === "restaurer-comp") {
+      var jr = lireJeton();
+      if (!jr) { jr = jetonCarte(carte); if (!jr) return; }
+      var opr = { t: Date.now(), type: "restaurer", chemin: carte.dataset.chemin, nom: carte.dataset.nom };
+      ajouterOp(opr);
+      var neuve = horsCorbeille(carte);
+      neuve.dataset.op = opr.t;
+      lancerOp(neuve, opr, jr);
+      return;
+    }
     if (a === "suppr-comp") { carte.querySelector(".lane-confirm").hidden = false; return; }
     if (a === "annuler-suppr") { carte.querySelector(".lane-confirm").hidden = true; return; }
     if (a === "confirmer-suppr") {
       var j = jetonCarte(carte.querySelector(".lane-confirm"));
       if (!j) return;
-      var op = { t: Date.now(), type: "supprimer", chemin: carte.dataset.chemin, nom: carte.dataset.nom };
+      var op = { t: Date.now(), type: "corbeille", chemin: carte.dataset.chemin, nom: carte.dataset.nom };
       ajouterOp(op);
-      carte.querySelector(".lane-confirm").hidden = true;
-      carte.classList.add("supprimee");
-      lancerOp(carte, op, j);
+      var li = versCorbeille(carte);
+      li.dataset.op = op.t;
+      lancerOp(li, op, j);
       return;
     }
     if (a === "nouvelle-comp") { carte.querySelector(".nouvelle-comp-form").hidden = false; b.hidden = true; carte.querySelector("#nc-nom").focus(); return; }
@@ -784,10 +855,10 @@
     var j = jetonCarte(form);
     if (!j) return;
     var pris = {};
-    Array.prototype.forEach.call(document.querySelectorAll(".lane[data-chemin]"), function (l) { pris[l.dataset.chemin] = true; });
+    Array.prototype.forEach.call(document.querySelectorAll(".lane[data-chemin], .jetee[data-chemin]"), function (l) { pris[l.dataset.chemin] = true; });
     var base = slug(nom), id = base, n = 2;
     while (pris["_competences/" + id + ".md"]) id = base + "-" + (n++);
-    var ordre = Math.max.apply(null, [0].concat(Array.prototype.map.call(document.querySelectorAll(".lane[data-ordre]"), function (l) { return +l.dataset.ordre || 0; }))) + 1;
+    var ordre = Math.max.apply(null, [0].concat(Array.prototype.map.call(document.querySelectorAll(".lane[data-ordre], .jetee[data-ordre]"), function (l) { return +l.dataset.ordre || 0; }))) + 1;
     var op = { t: Date.now(), type: "creer", chemin: "_competences/" + id + ".md", slug: id, nom: nom,
       data: { ordre: ordre, nom: nom, attendu: "", savoir_faire: "", savoir_etre: "", savoir: "", capacites: [], layout: "competence", title: nom } };
     ajouterOp(op);
@@ -804,11 +875,14 @@
       if (publie && op.envoye) { retirerOp(op.t); return; }
       var carte;
       if (op.type === "creer") carte = carteNouvelle(op);
-      else {
-        carte = document.querySelector('.lane[data-chemin="' + op.chemin + '"]');
-        if (!carte) { if (op.envoye) retirerOp(op.t); return; }
-        carte.classList.add("supprimee");
-      }
+      else if (op.type === "corbeille" || op.type === "restaurer") {
+        var dejaFait = op.type === "corbeille" ? '.jetee[data-chemin="' + op.chemin + '"]' : '.lane[data-chemin="' + op.chemin + '"]';
+        var aDeplacer = op.type === "corbeille" ? '.lane[data-chemin="' + op.chemin + '"]' : '.jetee[data-chemin="' + op.chemin + '"]';
+        carte = document.querySelector(aDeplacer);
+        if (carte) carte = op.type === "corbeille" ? versCorbeille(carte) : horsCorbeille(carte);
+        else carte = document.querySelector(dejaFait);
+        if (!carte) { retirerOp(op.t); return; }
+      } else { retirerOp(op.t); return; }
       carte.dataset.op = op.t;
       if (!op.envoye) { var j = lireJeton(); if (j) lancerOp(carte, op, j); else etatCarte(carte, "erreur", "Pas encore envoyée à GitHub."); }
     });

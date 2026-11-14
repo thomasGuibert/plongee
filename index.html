@@ -25,7 +25,9 @@ layout: default
   <span><i class="dot todo"></i>séance annoncée, à rédiger</span>
 </div>
 
-{%- assign comps = site.competences | sort: "ordre" %}
+{%- assign toutes = site.competences | sort: "ordre" %}
+{%- assign comps = toutes | where_exp: "c", "c.corbeille != true" %}
+{%- assign jetees = toutes | where: "corbeille", true %}
 <div class="board">
 {%- for c in comps -%}
   {%- assign avec = 0 -%}
@@ -37,9 +39,9 @@ layout: default
         <span class="eyebrow">Compétence</span>
         <h2>{{ c.nom }}</h2>
       </a>
-      <button type="button" class="btn-icone btn-suppr" data-action="suppr-comp" title="Supprimer la compétence" aria-label="Supprimer la compétence {{ c.nom | escape }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+      <button type="button" class="btn-icone btn-suppr" data-action="suppr-comp" title="Mettre à la corbeille" aria-label="Mettre la compétence {{ c.nom | escape }} à la corbeille"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
     </div>
-    <div class="lane-confirm" hidden><p>Supprimer « {{ c.nom }} » ? La page de la compétence disparaît ; les séances de ses capacités restent dans le dépôt.</p><button type="button" class="btn-danger" data-action="confirmer-suppr">Supprimer</button> <button type="button" class="btn-lien" data-action="annuler-suppr">Garder</button></div>
+    <div class="lane-confirm" hidden><p>Mettre « {{ c.nom }} » à la corbeille ? Elle sera rangée tout en bas de cette page, d'où vous pourrez la restaurer.</p><button type="button" class="btn-danger" data-action="confirmer-suppr">Mettre à la corbeille</button> <button type="button" class="btn-lien" data-action="annuler-suppr">Garder</button></div>
     <div class="meter" title="{{ avec }} capacité(s) avec au moins une séance"><i style="width:{{ pct }}%"></i></div>
     <details class="lane-acc">
       <summary>Savoir-faire, savoir-être, savoir</summary>
@@ -72,7 +74,7 @@ layout: default
     </details>
   </section>
 {%- endfor -%}
-  <section class="lane lane-nouvelle" data-max-ordre="{{ comps | map: 'ordre' | sort | last }}">
+  <section class="lane lane-nouvelle">
     <button type="button" class="nouvelle-comp" data-action="nouvelle-comp"><span aria-hidden="true">+</span> Nouvelle compétence</button>
     <form class="nouvelle-comp-form" hidden>
       <label for="nc-nom">Nom de la nouvelle compétence</label>
@@ -82,6 +84,16 @@ layout: default
     </form>
   </section>
 </div>
+
+<details class="corbeille">
+  <summary>Corbeille · <span class="corbeille-nb">{{ jetees.size }}</span> compétence{% if jetees.size > 1 %}s{% endif %}</summary>
+  <p class="ed-aide">Les compétences mises à la corbeille ne sont plus affichées dans le tableau. Leur page et leurs séances sont conservées.</p>
+  <ul class="corbeille-liste">
+  {%- for c in jetees %}
+    <li class="jetee" data-chemin="{{ c.path }}" data-nom="{{ c.nom | escape }}" data-ordre="{{ c.ordre }}"><a href="{{ c.url | relative_url }}">{{ c.nom }}</a> <button type="button" class="btn-lien" data-action="restaurer-comp">Restaurer</button></li>
+  {%- endfor %}
+  </ul>
+</details>
 </section>
 <script>
   // Sur mobile, la liste des capacités de chaque compétence est repliée au chargement.

@@ -4,8 +4,9 @@ layout: default
 <div class="comp-page">
 <nav class="trail"><a href="{{ '/' | relative_url }}">Toutes les compétences</a> › <span data-bloc-champ="nom" data-bloc-global>{{ page.nom }}</span></nav>
 
+{%- if page.corbeille %}<p class="bandeau-corbeille">Cette compétence est dans la corbeille : elle n'apparaît plus dans le tableau de l'accueil. Vous pouvez la restaurer depuis la corbeille, en bas de l'accueil.</p>{% endif %}
 <section class="bloc-edit bloc-competence" data-type="competence" data-chemin="{{ page.path }}">
-  <script type="application/json" class="bloc-data">{"ordre": {{ page.ordre | jsonify }}, "nom": {{ page.nom | jsonify }}, "attendu": {{ page.attendu | jsonify }}, "savoir_faire": {{ page.savoir_faire | jsonify }}, "savoir_etre": {{ page.savoir_etre | jsonify }}, "savoir": {{ page.savoir | jsonify }}, "source": {{ page.source | jsonify }}, "capacites": {% if page.capacites %}{{ page.capacites | jsonify }}{% else %}[]{% endif %}, "layout": "competence", "title": {{ page.title | jsonify }}}</script>
+  <script type="application/json" class="bloc-data">{"ordre": {{ page.ordre | jsonify }}, "nom": {{ page.nom | jsonify }}, "attendu": {{ page.attendu | jsonify }}, "savoir_faire": {{ page.savoir_faire | jsonify }}, "savoir_etre": {{ page.savoir_etre | jsonify }}, "savoir": {{ page.savoir | jsonify }}, "source": {{ page.source | jsonify }}, "capacites": {% if page.capacites %}{{ page.capacites | jsonify }}{% else %}[]{% endif %}, "layout": "competence", "title": {{ page.title | jsonify }}{% if page.corbeille %}, "corbeille": true{% endif %}}</script>
   <div class="bloc-top">{% include outils-edition.html label=page.nom classe="sur-fonce" %}</div>
   <div class="bloc-corps">
   <div class="comp-head">
