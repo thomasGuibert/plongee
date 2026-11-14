@@ -88,8 +88,15 @@
     h += '<button type="button" class="btn-lien" data-action="suppr-seance">Supprimer cette séance</button></fieldset>';
     return h;
   }
+  function JETON() {
+    return '<div class="ed-jeton"' + (lireJeton() ? " hidden" : "") + '>' +
+      '<label for="ed-jeton-' + compteur + '">Jeton GitHub (une seule fois par navigateur)</label>' +
+      '<input id="ed-jeton-' + compteur + '" class="ed-jeton-val" type="password" autocomplete="off" placeholder="github_pat_…">' +
+      '<p class="ed-aide">Créez un jeton « fine-grained » sur <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub</a>, limité au dépôt <code>' + esc(CFG.repo) + '</code>, avec la permission <em>Contents : Read and write</em>. Il reste enregistré dans ce navigateur seulement.</p></div>';
+  }
   function formHtml(d) {
     var h = '<form class="ed-form" novalidate>' +
+      '<p class="ed-statut" role="status" hidden></p>' + JETON() +
       '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Commencez une ligne par <code>[rouge]</code> ou <code>[vert]</code> pour une annotation.</p>' +
       '<fieldset class="ed-blanc"><legend>Capacité (bloc blanc)</legend>';
     BLANC.forEach(function (nom) { h += zone(nom, champVersTexte(trouver(d.blanc, nom)), false); });
@@ -97,12 +104,8 @@
     h += '<div class="ed-seances">';
     (d.seances || []).forEach(function (s, i) { h += formSeance(s, i); });
     h += '</div><button type="button" class="btn-lien" data-action="ajout-seance">+ Ajouter une séance</button>';
-    h += '<div class="ed-jeton"' + (lireJeton() ? " hidden" : "") + '>' +
-      '<label for="ed-jeton-' + compteur + '">Jeton GitHub (une seule fois par navigateur)</label>' +
-      '<input id="ed-jeton-' + compteur + '" class="ed-jeton-val" type="password" autocomplete="off" placeholder="github_pat_…">' +
-      '<p class="ed-aide">Créez un jeton « fine-grained » sur <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub</a>, limité au dépôt <code>' + esc(CFG.repo) + '</code>, avec la permission <em>Contents : Read and write</em>. Il reste enregistré dans ce navigateur seulement.</p></div>' +
-      '<div class="ed-actions"><button type="button" class="btn-lien" data-action="oublier"' + (lireJeton() ? "" : " hidden") + '>Oublier le jeton</button>' +
-      '<span class="ed-statut" role="status"></span></div></form>';
+    h += '<div class="ed-actions"><button type="button" class="btn-lien" data-action="oublier"' + (lireJeton() ? "" : " hidden") + '>Oublier le jeton</button>' +
+      '</div></form>';
     return h;
   }
   function lireForm(form, base) {
@@ -185,6 +188,7 @@
   function messageErreur(e) {
     if (e.message === "jeton") return "GitHub refuse le jeton. Vérifiez qu'il donne accès en écriture au dépôt, puis réessayez.";
     if (e.message === "conflit") return "Le fichier a changé entre-temps sur GitHub. Rechargez la page puis refaites la modification.";
+    if (e instanceof TypeError) return "Impossible de joindre GitHub (connexion ou bloqueur). Vos saisies sont toujours là : réessayez.";
     return "L'enregistrement a échoué (" + e.message + "). Vos saisies sont toujours là : réessayez.";
   }
 
@@ -230,7 +234,7 @@
       titre.focus({ preventScroll: true });
       return;
     }
-    if (a === "valider") { var f = article.querySelector(".ed-form"); if (f) f.requestSubmit(); }
+    if (a === "valider") sauver(article);
     else if (a === "edit") { if (!article.classList.contains("en-edition")) ouvrir(article); }
     else if (a === "annuler") fermer(article, article.dataset.vue || "");
     else if (a === "ajout-seance") {
@@ -248,18 +252,34 @@
     }
   });
 
-  document.addEventListener("submit", function (e) {
-    var form = e.target.closest(".ed-form");
+  function afficher(statut, texte, erreur) {
+    statut.hidden = false;
+    statut.textContent = texte;
+    statut.classList.toggle("erreur", !!erreur);
+    statut.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  function sauver(article) {
+    var form = article.querySelector(".ed-form");
     if (!form) return;
-    e.preventDefault();
-    var article = form.closest(".capa"), statut = form.querySelector(".ed-statut");
-    var champJeton = form.querySelector(".ed-jeton-val");
-    var jeton = (champJeton && champJeton.value.trim()) || lireJeton();
-    if (!jeton) { form.querySelector(".ed-jeton").hidden = false; statut.textContent = "Collez d'abord votre jeton GitHub."; champJeton.focus(); return; }
-    var data = lireForm(form, donnees(article));
+    var statut = form.querySelector(".ed-statut");
     var bouton = article.querySelector('[data-action="valider"]');
-    bouton.disabled = true;
-    statut.textContent = "Enregistrement…";
+    try {
+      var champJeton = form.querySelector(".ed-jeton-val");
+      var jeton = (champJeton && champJeton.value.trim()) || lireJeton();
+      if (!jeton) {
+        form.querySelector(".ed-jeton").hidden = false;
+        afficher(statut, "Collez d'abord votre jeton GitHub dans le champ ci-dessous, puis cliquez à nouveau sur ✓.", true);
+        champJeton.focus({ preventScroll: true });
+        return;
+      }
+      var data = lireForm(form, donnees(article));
+      bouton.disabled = true;
+      afficher(statut, "Enregistrement en cours…", false);
+    } catch (err) {
+      bouton.disabled = false;
+      afficher(statut, "Erreur dans la page : " + err.message, true);
+      return;
+    }
     enregistrer(article.dataset.id, article.dataset.nom, data, jeton).then(function () {
       ecrireJeton(jeton);
       var s = article.querySelector(".capa-data");
@@ -271,10 +291,18 @@
       pill.textContent = data.seances.length + " séance" + (data.seances.length > 1 ? "s" : "");
       bouton.disabled = false;
       fermer(article, '<p class="ed-ok" role="status">Enregistré. Le site publié se met à jour dans une à deux minutes.</p>' + vueHtml(data));
+      article.scrollIntoView({ block: "start", behavior: "smooth" });
     }).catch(function (err) {
       bouton.disabled = false;
-      statut.textContent = messageErreur(err);
+      if (window.console) console.error("Enregistrement impossible", err);
+      afficher(statut, messageErreur(err), true);
       if (err.message === "jeton") { ecrireJeton(""); form.querySelector(".ed-jeton").hidden = false; }
     });
+  }
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest(".ed-form");
+    if (!form) return;
+    e.preventDefault();
+    sauver(form.closest(".capa"));
   });
 })();

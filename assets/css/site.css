@@ -221,3 +221,6 @@ details[open] > .stile small { color: var(--on-yellow); }
 .capa-top { flex-wrap: nowrap; align-items: flex-start; }
 .capa-titre { flex: 1 1 auto; }
 .capa-actions { flex: 0 1 auto; flex-wrap: wrap-reverse; justify-content: flex-end; }
+.ed-statut { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; font-weight: 700; scroll-margin-top: 80px; }
+.ed-statut.erreur { background: transparent; border: 2px solid var(--note-rouge); color: var(--note-rouge); }
+.ed-statut[hidden] { display: none; }
