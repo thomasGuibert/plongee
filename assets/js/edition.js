@@ -17,7 +17,7 @@
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
   // ---- Mise en forme autorisée : gras, italique, barré, couleurs de la palette ----
-  var COULEURS = { rouge: "#c4302b", vert: "#2f8a3c", bleu: "#0b6e8a", orange: "#c26a00" };
+  var COULEURS = { rouge: "#c4302b", vert: "#2f8a3c", bleu: "#0b6e8a" };
   function couleurDe(css) {
     if (!css) return "";
     var c = String(css).toLowerCase().replace(/\s/g, "");
@@ -55,12 +55,13 @@
   function escTexte(s) { return nettoyer(s); }
 
   // ---- Champ <-> éditeur mis en forme ----
-  // Une ligne (<div>) par élément ; une ligne marquée data-note="rouge|vert" est une annotation.
+  // Une ligne (<div>) par élément.
   function champVersEditeur(f) {
     if (!f) return "<div><br></div>";
     var h = "";
     (f.texte || []).forEach(function (t) { h += "<div>" + nettoyer(t) + "</div>"; });
-    (f.notes || []).forEach(function (n) { h += '<div data-note="' + esc(n.couleur) + '">' + nettoyer(n.texte) + "</div>"; });
+    // Anciennes annotations : reprises comme lignes colorées.
+    (f.notes || []).forEach(function (n) { h += '<div><span class="c-' + esc(n.couleur) + '">' + nettoyer(n.texte) + "</span></div>"; });
     return h || "<div><br></div>";
   }
   function lignesEditeur(ed) {
@@ -139,7 +140,6 @@
       '<button type="button" class="ed-outil ed-pastille c-fond-noir" data-cmd="couleur" data-val="noir" title="Texte noir (couleur normale)" aria-label="Texte noir (couleur normale)"></button>';
     Object.keys(COULEURS).forEach(function (k) { h += '<button type="button" class="ed-outil ed-pastille c-fond-' + k + '" data-cmd="couleur" data-val="' + k + '" title="Texte ' + k + '" aria-label="Texte ' + k + '"></button>'; });
     h += b("sans-couleur", "A", "Effacer toute la mise en forme", "ed-sans") + '<span class="ed-sep"></span>' +
-      b("note", "Annot.", "Annotation : normale → rouge → verte", "ed-note-btn") +
       '<span class="ed-sep"></span><details class="ed-emojis"><summary class="ed-outil" title="Emoji" aria-label="Emoji">😊</summary><div class="ed-emojis-liste">' +
       EMOJIS.map(function (e) { return '<button type="button" class="ed-outil" data-cmd="emoji" data-val="' + e + '">' + e + "</button>"; }).join("") +
       "</div></details></div>";
@@ -162,7 +162,7 @@
   function formHtml(d) {
     var h = '<form class="ed-form" novalidate>' +
       '<p class="ed-statut" role="status" hidden></p>' + JETON() +
-      '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Sélectionnez du texte pour le mettre en forme ; « Annot. » transforme la ligne en annotation rouge puis verte.</p>' +
+      '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Sélectionnez du texte pour le mettre en forme.</p>' +
       barreOutils() +
       '<fieldset class="ed-blanc"><legend>Capacité (bloc blanc)</legend>';
     BLANC.forEach(function (nom) { h += zone(nom, trouver(d.blanc, nom), false); });
@@ -418,10 +418,7 @@
     if (cmd === "couleur") document.execCommand("foreColor", false, COULEURS[b.dataset.val] || getComputedStyle(dernierEditeur).color);
     else if (cmd === "sans-couleur") document.execCommand("removeFormat", false, null);
     else if (cmd === "emoji") { document.execCommand("insertText", false, b.dataset.val); var d = b.closest("details"); if (d) d.open = false; }
-    else if (cmd === "note") {
-      var l = ligneCourante();
-      if (l) { var v = l.getAttribute("data-note"); var suiv = !v ? "rouge" : v === "rouge" ? "vert" : ""; if (suiv) l.setAttribute("data-note", suiv); else l.removeAttribute("data-note"); }
-    } else document.execCommand(cmd, false, null);
+    else document.execCommand(cmd, false, null);
     memoriser();
   });
   // Coller du texte : garder seulement le texte brut.
