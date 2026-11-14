@@ -224,3 +224,38 @@ details[open] > .stile small { color: var(--on-yellow); }
 .ed-statut { margin: 0; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 14px; font-weight: 700; scroll-margin-top: 80px; }
 .ed-statut.erreur { background: transparent; border: 2px solid var(--note-rouge); color: var(--note-rouge); }
 .ed-statut[hidden] { display: none; }
+
+/* Couleurs de texte disponibles dans l'éditeur */
+.c-rouge { color: var(--note-rouge); }
+.c-vert { color: var(--note-vert); }
+.c-bleu { color: var(--accent); }
+.c-orange { color: #c26a00; }
+@media (prefers-color-scheme: dark) { .c-orange { color: #f0a050; } }
+
+/* Éditeur mis en forme */
+.ed-label { font-size: 13px; color: var(--muted); font-weight: 700; }
+.ed-champ.jaune .ed-label { color: var(--ink); }
+.ed-rte { min-height: 2.6em; font-size: 15px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; overflow-wrap: anywhere; }
+.ed-rte:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: var(--accent); }
+.ed-rte > div { padding-left: 14px; position: relative; }
+.ed-rte > div::before { content: "•"; position: absolute; left: 2px; color: var(--muted); }
+.ed-rte > div[data-note] { font-size: 13.5px; }
+.ed-rte > div[data-note]::before { content: "✎"; }
+.ed-rte > div[data-note="rouge"] { color: var(--note-rouge); }
+.ed-rte > div[data-note="vert"] { color: var(--note-vert); }
+.ed-barre { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.06); }
+.ed-outil { min-width: 34px; height: 34px; padding: 0 8px; display: inline-grid; place-items: center; font: inherit; font-size: 15px; color: var(--ink); background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; list-style: none; }
+.ed-outil:hover { background: var(--accent-soft); }
+.ed-outil:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ed-pastille { min-width: 26px; width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line); }
+.c-fond-rouge { background: var(--note-rouge); } .c-fond-vert { background: var(--note-vert); }
+.c-fond-bleu { background: var(--accent); } .c-fond-orange { background: #c26a00; }
+.ed-pastille:hover { transform: scale(1.1); background-clip: padding-box; }
+.c-fond-rouge:hover { background: var(--note-rouge); } .c-fond-vert:hover { background: var(--note-vert); } .c-fond-bleu:hover { background: var(--accent); } .c-fond-orange:hover { background: #c26a00; }
+.ed-sans { text-decoration: underline; text-decoration-color: var(--muted); }
+.ed-note-btn { font-size: 13px; color: var(--note-rouge); }
+.ed-sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
+.ed-emojis { position: relative; }
+.ed-emojis > summary::-webkit-details-marker { display: none; }
+.ed-emojis-liste { position: absolute; z-index: 6; right: 0; top: 40px; width: 228px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+@media (max-width: 560px) { .ed-emojis-liste { right: auto; left: 0; } }

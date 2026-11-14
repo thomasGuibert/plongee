@@ -16,25 +16,75 @@
   function esc(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   }
-  // Le texte peut contenir <s>…</s> (texte barré) : on le garde, tout le reste est échappé.
-  function escTexte(s) { return esc(s).replace(/&lt;(\/?)s&gt;/g, "<$1s>"); }
-
-  // ---- Champ <-> texte de la zone de saisie ----
-  // Une ligne par élément. « [rouge] … » ou « [vert] … » = annotation.
-  function champVersTexte(f) {
-    if (!f) return "";
-    var lignes = (f.texte || []).slice();
-    (f.notes || []).forEach(function (n) { lignes.push("[" + n.couleur + "] " + n.texte); });
-    return lignes.join("\n");
+  // ---- Mise en forme autorisée : gras, italique, barré, couleurs de la palette ----
+  var COULEURS = { rouge: "#c4302b", vert: "#2f8a3c", bleu: "#0b6e8a", orange: "#c26a00" };
+  function couleurDe(css) {
+    if (!css) return "";
+    var c = String(css).toLowerCase().replace(/\s/g, "");
+    var m = c.match(/^rgb\((\d+),(\d+),(\d+)\)$/);
+    if (m) c = "#" + [m[1], m[2], m[3]].map(function (x) { return ("0" + (+x).toString(16)).slice(-2); }).join("");
+    for (var k in COULEURS) if (COULEURS[k] === c) return k;
+    return "";
   }
-  function texteVersChamp(nom, txt) {
+  // Transforme un fragment HTML quelconque en HTML sûr limité à <b>, <i>, <s>, <span class="c-…">.
+  function nettoyerNoeuds(parent) {
+    var h = "";
+    Array.prototype.forEach.call(parent.childNodes, function (n) {
+      if (n.nodeType === 3) { h += esc(n.nodeValue); return; }
+      if (n.nodeType !== 1) return;
+      var tag = n.tagName.toLowerCase(), inner = nettoyerNoeuds(n);
+      if (tag === "br") return;
+      var gras = tag === "b" || tag === "strong" || /bold|[6-9]00/.test(n.style && n.style.fontWeight || "");
+      var ital = tag === "i" || tag === "em" || (n.style && n.style.fontStyle === "italic");
+      var barre = tag === "s" || tag === "strike" || tag === "del" || /line-through/.test(n.style && n.style.textDecoration || "");
+      var coul = (n.classList && Array.prototype.filter.call(n.classList, function (c) { return /^c-/.test(c); })[0] || "").slice(2)
+        || couleurDe(n.getAttribute("color")) || couleurDe(n.style && n.style.color);
+      if (coul && COULEURS[coul]) inner = '<span class="c-' + coul + '">' + inner + "</span>";
+      if (barre) inner = "<s>" + inner + "</s>";
+      if (ital) inner = "<i>" + inner + "</i>";
+      if (gras) inner = "<b>" + inner + "</b>";
+      h += inner;
+    });
+    return h;
+  }
+  function nettoyer(html) {
+    var d = document.createElement("div");
+    d.innerHTML = html;
+    return nettoyerNoeuds(d).replace(/&nbsp;|\u00a0/g, " ").trim();
+  }
+  function escTexte(s) { return nettoyer(s); }
+
+  // ---- Champ <-> éditeur mis en forme ----
+  // Une ligne (<div>) par élément ; une ligne marquée data-note="rouge|vert" est une annotation.
+  function champVersEditeur(f) {
+    if (!f) return "<div><br></div>";
+    var h = "";
+    (f.texte || []).forEach(function (t) { h += "<div>" + nettoyer(t) + "</div>"; });
+    (f.notes || []).forEach(function (n) { h += '<div data-note="' + esc(n.couleur) + '">' + nettoyer(n.texte) + "</div>"; });
+    return h || "<div><br></div>";
+  }
+  function lignesEditeur(ed) {
+    var lignes = [], courante = null;
+    Array.prototype.forEach.call(ed.childNodes, function (n) {
+      if (n.nodeType === 1 && /^(div|p|li)$/i.test(n.tagName)) {
+        courante = null;
+        lignes.push({ html: nettoyer(n.innerHTML), note: n.getAttribute("data-note") || "" });
+      } else if (n.nodeType === 1 && /^br$/i.test(n.tagName)) {
+        courante = null;
+      } else {
+        if (!courante) { courante = { html: "", note: "" }; lignes.push(courante); }
+        var tmp = document.createElement("div"); tmp.appendChild(n.cloneNode(true));
+        courante.html += tmp.innerHTML;
+      }
+    });
+    lignes.forEach(function (l) { if (l.html.indexOf("<") === -1 && l.html.indexOf("&") === -1) return; l.html = nettoyer(l.html); });
+    return lignes.filter(function (l) { return l.html.replace(/<[^>]*>/g, "").trim(); });
+  }
+  function editeurVersChamp(nom, ed) {
     var f = { champ: nom, texte: [] }, notes = [];
-    txt.split("\n").forEach(function (l) {
-      l = l.trim();
-      if (!l) return;
-      var m = l.match(/^\[(rouge|vert)\]\s*(.*)$/i);
-      if (m) notes.push({ couleur: m[1].toLowerCase(), texte: m[2] });
-      else f.texte.push(l);
+    lignesEditeur(ed).forEach(function (l) {
+      if (l.note === "rouge" || l.note === "vert") notes.push({ couleur: l.note, texte: l.html });
+      else f.texte.push(l.html);
     });
     if (notes.length) f.notes = notes;
     return f;
@@ -75,16 +125,30 @@
 
   // ---- Formulaire ----
   var compteur = 0;
-  function zone(label, valeur, jaune) {
+  function zone(label, f, jaune) {
     var id = "ed-" + (++compteur);
-    return '<div class="ed-champ' + (jaune ? " jaune" : "") + '"><label for="' + id + '">' + esc(label) + "</label>" +
-      '<textarea id="' + id + '" data-champ="' + esc(label) + '" rows="' + Math.max(2, valeur.split("\n").length + 1) + '">' + esc(valeur) + "</textarea></div>";
+    return '<div class="ed-champ' + (jaune ? " jaune" : "") + '"><span class="ed-label" id="' + id + '-l">' + esc(label) + "</span>" +
+      '<div class="ed-rte" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="' + id + '-l" data-champ="' + esc(label) + '">' + champVersEditeur(f) + "</div></div>";
+  }
+  var EMOJIS = ["⚠️", "✅", "❌", "💡", "👉", "❗", "❓", "👍", "👎", "👀", "⏱️", "📏", "🫧", "🤿", "🐟", "🌊", "🛟", "🔁", "1️⃣", "2️⃣", "3️⃣"];
+  function barreOutils() {
+    var b = function (cmd, label, titre, cls) { return '<button type="button" class="ed-outil' + (cls ? " " + cls : "") + '" data-cmd="' + cmd + '" title="' + titre + '" aria-label="' + titre + '">' + label + "</button>"; };
+    var h = '<div class="ed-barre" role="toolbar" aria-label="Mise en forme">' +
+      b("bold", "<b>G</b>", "Gras") + b("italic", "<i>I</i>", "Italique") + b("strikeThrough", "<s>S</s>", "Barré") +
+      '<span class="ed-sep"></span>';
+    Object.keys(COULEURS).forEach(function (k) { h += '<button type="button" class="ed-outil ed-pastille c-fond-' + k + '" data-cmd="couleur" data-val="' + k + '" title="Texte ' + k + '" aria-label="Texte ' + k + '"></button>'; });
+    h += b("sans-couleur", "A", "Couleur normale", "ed-sans") + '<span class="ed-sep"></span>' +
+      b("note", "Annot.", "Annotation : normale → rouge → verte", "ed-note-btn") +
+      '<span class="ed-sep"></span><details class="ed-emojis"><summary class="ed-outil" title="Emoji" aria-label="Emoji">😊</summary><div class="ed-emojis-liste">' +
+      EMOJIS.map(function (e) { return '<button type="button" class="ed-outil" data-cmd="emoji" data-val="' + e + '">' + e + "</button>"; }).join("") +
+      "</div></details></div>";
+    return h;
   }
   function formSeance(s, i) {
     var id = "ed-" + (++compteur);
     var h = '<fieldset class="ed-seance" data-index="' + i + '"><legend>Séance ' + (i + 1) + "</legend>" +
       '<div class="ed-champ jaune"><label for="' + id + '">Titre de la séance</label><input id="' + id + '" class="ed-titre" value="' + esc(s.titre || "") + '"></div>';
-    JAUNE.forEach(function (nom) { h += zone(nom, champVersTexte(trouver(s.champs, nom)), true); });
+    JAUNE.forEach(function (nom) { h += zone(nom, trouver(s.champs, nom), true); });
     h += '<button type="button" class="btn-lien" data-action="suppr-seance">Supprimer cette séance</button></fieldset>';
     return h;
   }
@@ -97,10 +161,11 @@
   function formHtml(d) {
     var h = '<form class="ed-form" novalidate>' +
       '<p class="ed-statut" role="status" hidden></p>' + JETON() +
-      '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Commencez une ligne par <code>[rouge]</code> ou <code>[vert]</code> pour une annotation.</p>' +
+      '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Sélectionnez du texte pour le mettre en forme ; « Annot. » transforme la ligne en annotation rouge puis verte.</p>' +
+      barreOutils() +
       '<fieldset class="ed-blanc"><legend>Capacité (bloc blanc)</legend>';
-    BLANC.forEach(function (nom) { h += zone(nom, champVersTexte(trouver(d.blanc, nom)), false); });
-    h += zone(FAUTES, champVersTexte(d.fautes), false) + "</fieldset>";
+    BLANC.forEach(function (nom) { h += zone(nom, trouver(d.blanc, nom), false); });
+    h += zone(FAUTES, d.fautes, false) + "</fieldset>";
     h += '<div class="ed-seances">';
     (d.seances || []).forEach(function (s, i) { h += formSeance(s, i); });
     h += '</div><button type="button" class="btn-lien" data-action="ajout-seance">+ Ajouter une séance</button>';
@@ -111,11 +176,12 @@
   function lireForm(form, base) {
     var d = JSON.parse(JSON.stringify(base || {}));
     var blanc = form.querySelector(".ed-blanc");
-    d.blanc = BLANC.map(function (nom) { return texteVersChamp(nom, blanc.querySelector('[data-champ="' + nom.replace(/"/g, '\\"') + '"]').value); });
-    d.fautes = texteVersChamp(FAUTES, blanc.querySelector('[data-champ="' + FAUTES + '"]').value);
+    var eds = blanc.querySelectorAll(".ed-rte");
+    d.blanc = BLANC.map(function (nom, i) { return editeurVersChamp(nom, eds[i]); });
+    d.fautes = editeurVersChamp(FAUTES, eds[BLANC.length]);
     d.seances = Array.prototype.map.call(form.querySelectorAll(".ed-seance"), function (fs, i) {
       var s = { titre: fs.querySelector(".ed-titre").value.trim() || ("Séance " + (i + 1)) };
-      var champs = Array.prototype.map.call(fs.querySelectorAll("textarea"), function (t) { return texteVersChamp(t.dataset.champ, t.value); });
+      var champs = Array.prototype.map.call(fs.querySelectorAll(".ed-rte"), function (t, k) { return editeurVersChamp(JAUNE[k], t); });
       var rempli = champs.some(function (f) { return f.texte.length || f.notes; });
       if (rempli) s.champs = champs; else s.a_rediger = true;
       return s;
@@ -209,7 +275,7 @@
     article.dataset.vue = corps.innerHTML;
     article.classList.add("en-edition");
     corps.innerHTML = formHtml(donnees(article));
-    var t = corps.querySelector("textarea");
+    var t = corps.querySelector(".ed-rte");
     if (t) t.focus();
   }
   function fermer(article, html) {
@@ -304,5 +370,63 @@
     if (!form) return;
     e.preventDefault();
     sauver(form.closest(".capa"));
+  });
+  // ---- Barre d'outils ----
+  var dernierEditeur = null, derniereSelection = null;
+  function memoriser() {
+    var sel = window.getSelection();
+    if (!sel.rangeCount) return;
+    var n = sel.anchorNode, ed = n && (n.nodeType === 1 ? n : n.parentElement);
+    ed = ed && ed.closest && ed.closest(".ed-rte");
+    if (ed) { dernierEditeur = ed; derniereSelection = sel.getRangeAt(0).cloneRange(); }
+  }
+  document.addEventListener("selectionchange", memoriser);
+  function restaurer() {
+    if (!dernierEditeur || !document.body.contains(dernierEditeur)) return false;
+    dernierEditeur.focus({ preventScroll: true });
+    if (derniereSelection) { var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(derniereSelection); }
+    return true;
+  }
+  function ligneCourante() {
+    var sel = window.getSelection();
+    if (!sel.rangeCount) return null;
+    var n = sel.anchorNode;
+    if (!n) return null;
+    if (n.nodeType === 1 && n.classList.contains("ed-rte")) n = n.childNodes[sel.anchorOffset] || n.lastChild;
+    while (n && n.parentNode && !(n.parentNode.classList && n.parentNode.classList.contains("ed-rte"))) n = n.parentNode;
+    if (!n || !n.parentNode) return null;
+    if (n.nodeType !== 1 || !/^(div|p)$/i.test(n.tagName)) {
+      // texte posé directement dans l'éditeur : on l'enveloppe dans une ligne
+      var div = document.createElement("div");
+      n.parentNode.insertBefore(div, n);
+      div.appendChild(n);
+      n = div;
+    }
+    return n;
+  }
+  // Les boutons ne doivent pas prendre le focus (sinon la sélection est perdue).
+  document.addEventListener("mousedown", function (e) { if (e.target.closest(".ed-outil")) e.preventDefault(); });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".ed-outil[data-cmd]");
+    if (!b) return;
+    e.preventDefault();
+    if (!restaurer()) return;
+    var cmd = b.dataset.cmd;
+    try { document.execCommand("styleWithCSS", false, false); } catch (x) {}
+    if (cmd === "couleur") document.execCommand("foreColor", false, COULEURS[b.dataset.val]);
+    else if (cmd === "sans-couleur") document.execCommand("removeFormat", false, null);
+    else if (cmd === "emoji") { document.execCommand("insertText", false, b.dataset.val); var d = b.closest("details"); if (d) d.open = false; }
+    else if (cmd === "note") {
+      var l = ligneCourante();
+      if (l) { var v = l.getAttribute("data-note"); var suiv = !v ? "rouge" : v === "rouge" ? "vert" : ""; if (suiv) l.setAttribute("data-note", suiv); else l.removeAttribute("data-note"); }
+    } else document.execCommand(cmd, false, null);
+    memoriser();
+  });
+  // Coller du texte : garder seulement le texte brut.
+  document.addEventListener("paste", function (e) {
+    if (!e.target.closest || !e.target.closest(".ed-rte")) return;
+    e.preventDefault();
+    var t = (e.clipboardData || window.clipboardData).getData("text/plain");
+    document.execCommand("insertText", false, t);
   });
 })();
