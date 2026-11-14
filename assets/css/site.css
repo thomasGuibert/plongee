@@ -262,3 +262,4 @@ details[open] > .stile small { color: var(--on-yellow); }
 /* Accueil : nom de la capacité en gras, « ensuite » en normal */
 .crow-nom { font-weight: 700; }
 .next b { font-weight: 400; }
+.c-fond-noir, .c-fond-noir:hover { background: var(--ink); }

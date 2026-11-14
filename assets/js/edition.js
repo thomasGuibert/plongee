@@ -135,9 +135,10 @@
     var b = function (cmd, label, titre, cls) { return '<button type="button" class="ed-outil' + (cls ? " " + cls : "") + '" data-cmd="' + cmd + '" title="' + titre + '" aria-label="' + titre + '">' + label + "</button>"; };
     var h = '<div class="ed-barre" role="toolbar" aria-label="Mise en forme">' +
       b("bold", "<b>G</b>", "Gras") + b("italic", "<i>I</i>", "Italique") + b("strikeThrough", "<s>S</s>", "Barré") +
-      '<span class="ed-sep"></span>';
+      '<span class="ed-sep"></span>' +
+      '<button type="button" class="ed-outil ed-pastille c-fond-noir" data-cmd="couleur" data-val="noir" title="Texte noir (couleur normale)" aria-label="Texte noir (couleur normale)"></button>';
     Object.keys(COULEURS).forEach(function (k) { h += '<button type="button" class="ed-outil ed-pastille c-fond-' + k + '" data-cmd="couleur" data-val="' + k + '" title="Texte ' + k + '" aria-label="Texte ' + k + '"></button>'; });
-    h += b("sans-couleur", "A", "Couleur normale", "ed-sans") + '<span class="ed-sep"></span>' +
+    h += b("sans-couleur", "A", "Effacer toute la mise en forme", "ed-sans") + '<span class="ed-sep"></span>' +
       b("note", "Annot.", "Annotation : normale → rouge → verte", "ed-note-btn") +
       '<span class="ed-sep"></span><details class="ed-emojis"><summary class="ed-outil" title="Emoji" aria-label="Emoji">😊</summary><div class="ed-emojis-liste">' +
       EMOJIS.map(function (e) { return '<button type="button" class="ed-outil" data-cmd="emoji" data-val="' + e + '">' + e + "</button>"; }).join("") +
@@ -413,7 +414,8 @@
     if (!restaurer()) return;
     var cmd = b.dataset.cmd;
     try { document.execCommand("styleWithCSS", false, false); } catch (x) {}
-    if (cmd === "couleur") document.execCommand("foreColor", false, COULEURS[b.dataset.val]);
+    // « noir » = couleur normale du texte : appliquée à l'écran puis retirée à l'enregistrement.
+    if (cmd === "couleur") document.execCommand("foreColor", false, COULEURS[b.dataset.val] || getComputedStyle(dernierEditeur).color);
     else if (cmd === "sans-couleur") document.execCommand("removeFormat", false, null);
     else if (cmd === "emoji") { document.execCommand("insertText", false, b.dataset.val); var d = b.closest("details"); if (d) d.open = false; }
     else if (cmd === "note") {
