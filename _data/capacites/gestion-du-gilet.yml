@@ -9,7 +9,7 @@ blanc:
       - "Debut"
   - champ: "Prérequis"
     texte:
-      - "N/<span class=\"c-vert\">A</span>"
+      - "N/A"
       - "<span class=\"c-rouge\">différente taille de gilet · forme · types/attaches · différence avec la combi</span>"
   - champ: "Critères d'évaluation"
     texte:
