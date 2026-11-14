@@ -234,29 +234,115 @@
     options.headers = { "Authorization": "Bearer " + jeton, "Accept": "application/vnd.github+json" };
     return fetch("https://api.github.com/repos/" + CFG.repo + "/contents/" + chemin, options);
   }
-  function enregistrer(id, nom, data, jeton) {
-    var chemin = "_data/capacites/" + id + ".yml";
-    var texteYaml = versYaml(data);
-    return api(chemin + "?ref=" + CFG.branche, jeton).then(function (r) {
+  // Dernier sha connu de chaque fichier (renvoyé par GitHub après chaque écriture) :
+  // évite de relire un fichier que GitHub sert encore depuis son cache.
+  var SHA = {};
+  function lireSha(chemin, jeton) {
+    return api(chemin + "?ref=" + CFG.branche + "&t=" + Date.now(), jeton, { cache: "no-store" }).then(function (r) {
       if (r.status === 404) return null;
       if (r.status === 401 || r.status === 403) throw new Error("jeton");
       if (!r.ok) throw new Error("HTTP " + r.status);
-      return r.json();
-    }).then(function (actuel) {
-      var corps = { message: "Modifier la capacité « " + nom + " » depuis le site", content: b64(texteYaml), branch: CFG.branche };
-      if (actuel) corps.sha = actuel.sha;
-      return api(chemin, jeton, { method: "PUT", body: JSON.stringify(corps) });
-    }).then(function (r) {
-      if (r.status === 401 || r.status === 403) throw new Error("jeton");
-      if (r.status === 409) throw new Error("conflit");
-      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json().then(function (j) { return j.sha; });
+    });
+  }
+  function ecrire(chemin, nom, texteYaml, sha, jeton) {
+    var corps = { message: "Modifier la capacité « " + nom + " » depuis le site", content: b64(texteYaml), branch: CFG.branche };
+    if (sha) corps.sha = sha;
+    return api(chemin, jeton, { method: "PUT", body: JSON.stringify(corps) });
+  }
+  function enregistrer(id, nom, data, jeton) {
+    var chemin = "_data/capacites/" + id + ".yml";
+    var texteYaml = versYaml(data);
+    var essai = function (sha, dernier) {
+      return ecrire(chemin, nom, texteYaml, sha, jeton).then(function (r) {
+        if (r.status === 401 || r.status === 403) throw new Error("jeton");
+        if ((r.status === 409 || r.status === 422) && !dernier) {
+          // sha périmé : on relit le fichier et on réessaie une fois
+          return lireSha(chemin, jeton).then(function (s) { return essai(s, true); });
+        }
+        if (r.status === 409) throw new Error("conflit");
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json().then(function (j) { if (j && j.content) SHA[chemin] = j.content.sha; });
+      });
+    };
+    var depart = SHA[chemin] !== undefined ? Promise.resolve(SHA[chemin]) : lireSha(chemin, jeton);
+    return depart.then(function (sha) { return essai(sha, false); });
+  }
+
+  // ---- Tampon local et file d'enregistrement ----
+  // Chaque ✓ range la capacité dans ce navigateur puis l'envoie à GitHub, une écriture à la fois.
+  var CLE_TAMPON = "plongee-tampon-";
+  function lireTampon(id) { try { return JSON.parse(localStorage.getItem(CLE_TAMPON + id) || "null"); } catch (e) { return null; } }
+  function ecrireTampon(id, v) { try { if (v) localStorage.setItem(CLE_TAMPON + id, JSON.stringify(v)); else localStorage.removeItem(CLE_TAMPON + id); } catch (e) {} }
+  var file = Promise.resolve();
+  function mettreEnFile(article, data, jeton) {
+    var id = article.dataset.id, nom = article.dataset.nom, t = Date.now();
+    ecrireTampon(id, { t: t, data: data, enAttente: true });
+    etat(article, "attente");
+    file = file.then(function () {
+      var tampon = lireTampon(id);
+      if (!tampon || tampon.t !== t) return; // une version plus récente est déjà en file
+      etat(article, "envoi");
+      return enregistrer(id, nom, data, jeton).then(function () {
+        ecrireJeton(jeton);
+        var v = lireTampon(id);
+        if (v && v.t === t) { v.enAttente = false; ecrireTampon(id, v); }
+        etat(article, "ok");
+      }).catch(function (err) {
+        if (window.console) console.error("Enregistrement impossible", err);
+        if (err.message === "jeton") ecrireJeton("");
+        etat(article, "erreur", messageErreur(err));
+      });
+    });
+  }
+  function etat(article, quoi, message) {
+    var e = article.querySelector(".ed-etat");
+    if (!e) {
+      e = document.createElement("p");
+      e.className = "ed-etat";
+      e.setAttribute("role", "status");
+      article.querySelector(".capa-top").insertAdjacentElement("afterend", e);
+    }
+    e.className = "ed-etat " + quoi;
+    e.hidden = false;
+    if (quoi === "attente") e.textContent = "En attente d'enregistrement…";
+    else if (quoi === "envoi") e.textContent = "Enregistrement sur GitHub…";
+    else if (quoi === "ok") e.textContent = "Enregistré. Le site publié se met à jour dans une à deux minutes.";
+    else e.innerHTML = esc(message) + ' Vos modifications sont gardées dans ce navigateur. <button type="button" class="btn-lien" data-action="reessayer">Réessayer</button>';
+  }
+  function appliquer(article, data) {
+    var s = article.querySelector(".capa-data");
+    if (!s) { s = document.createElement("script"); s.type = "application/json"; s.className = "capa-data"; article.insertBefore(s, article.firstChild); }
+    s.textContent = JSON.stringify(data);
+    article.classList.remove("empty");
+    var pill = article.querySelector(".pill");
+    if (pill) {
+      pill.classList.remove("todo");
+      pill.textContent = data.seances.length + " séance" + (data.seances.length > 1 ? "s" : "");
+    }
+    if (!article.classList.contains("en-edition")) article.querySelector(".capa-body").innerHTML = vueHtml(data);
+  }
+  // Au chargement : si ce navigateur a une version plus récente que la page publiée, on l'affiche,
+  // et on renvoie ce qui n'a pas pu être enregistré.
+  function reprendre() {
+    Array.prototype.forEach.call(document.querySelectorAll(".capa[data-id]"), function (article) {
+      var v = lireTampon(article.dataset.id);
+      if (!v) return;
+      var publie = CFG.build && v.t / 1000 < CFG.build - 5;
+      if (publie && !v.enAttente) { ecrireTampon(article.dataset.id, null); return; }
+      appliquer(article, v.data);
+      if (v.enAttente) {
+        var jeton = lireJeton();
+        if (jeton) mettreEnFile(article, v.data, jeton);
+        else etat(article, "erreur", "Des modifications n'ont pas encore été envoyées à GitHub.");
+      }
     });
   }
   function messageErreur(e) {
     if (e.message === "jeton") return "GitHub refuse le jeton. Vérifiez qu'il donne accès en écriture au dépôt, puis réessayez.";
-    if (e.message === "conflit") return "Le fichier a changé entre-temps sur GitHub. Rechargez la page puis refaites la modification.";
-    if (e instanceof TypeError) return "Impossible de joindre GitHub (connexion ou bloqueur). Vos saisies sont toujours là : réessayez.";
-    return "L'enregistrement a échoué (" + e.message + "). Vos saisies sont toujours là : réessayez.";
+    if (e.message === "conflit") return "Le fichier a changé entre-temps sur GitHub.";
+    if (e instanceof TypeError) return "Impossible de joindre GitHub (connexion ou bloqueur).";
+    return "L'enregistrement a échoué (" + e.message + ").";
   }
 
   // ---- Branchement ----
@@ -301,6 +387,12 @@
       titre.focus({ preventScroll: true });
       return;
     }
+    if (a === "reessayer") {
+      var v = lireTampon(article.dataset.id), j = lireJeton();
+      if (!j) { ouvrir(article); return; }
+      if (v) mettreEnFile(article, v.data, j);
+      return;
+    }
     if (a === "valider") sauver(article);
     else if (a === "edit") { if (!article.classList.contains("en-edition")) ouvrir(article); }
     else if (a === "annuler") fermer(article, article.dataset.vue || "");
@@ -329,7 +421,6 @@
     var form = article.querySelector(".ed-form");
     if (!form) return;
     var statut = form.querySelector(".ed-statut");
-    var bouton = article.querySelector('[data-action="valider"]');
     try {
       var champJeton = form.querySelector(".ed-jeton-val");
       var jeton = (champJeton && champJeton.value.trim()) || lireJeton();
@@ -340,31 +431,14 @@
         return;
       }
       var data = lireForm(form, donnees(article));
-      bouton.disabled = true;
-      afficher(statut, "Enregistrement en cours…", false);
     } catch (err) {
-      bouton.disabled = false;
       afficher(statut, "Erreur dans la page : " + err.message, true);
       return;
     }
-    enregistrer(article.dataset.id, article.dataset.nom, data, jeton).then(function () {
-      ecrireJeton(jeton);
-      var s = article.querySelector(".capa-data");
-      if (!s) { s = document.createElement("script"); s.type = "application/json"; s.className = "capa-data"; article.insertBefore(s, article.firstChild); }
-      s.textContent = JSON.stringify(data);
-      article.classList.remove("empty");
-      var pill = article.querySelector(".pill");
-      pill.classList.remove("todo");
-      pill.textContent = data.seances.length + " séance" + (data.seances.length > 1 ? "s" : "");
-      bouton.disabled = false;
-      fermer(article, '<p class="ed-ok" role="status">Enregistré. Le site publié se met à jour dans une à deux minutes.</p>' + vueHtml(data));
-      article.scrollIntoView({ block: "start", behavior: "smooth" });
-    }).catch(function (err) {
-      bouton.disabled = false;
-      if (window.console) console.error("Enregistrement impossible", err);
-      afficher(statut, messageErreur(err), true);
-      if (err.message === "jeton") { ecrireJeton(""); form.querySelector(".ed-jeton").hidden = false; }
-    });
+    ecrireJeton(jeton);
+    fermer(article, vueHtml(data));
+    appliquer(article, data);
+    mettreEnFile(article, data, jeton);
   }
   document.addEventListener("submit", function (e) {
     var form = e.target.closest(".ed-form");
@@ -428,4 +502,5 @@
     var t = (e.clipboardData || window.clipboardData).getData("text/plain");
     document.execCommand("insertText", false, t);
   });
+  reprendre();
 })();

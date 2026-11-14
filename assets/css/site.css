@@ -263,3 +263,9 @@ details[open] > .stile small { color: var(--on-yellow); }
 .crow-nom { font-weight: 400; }
 .next b { font-weight: 400; font-style: italic; }
 .c-fond-noir, .c-fond-noir:hover { background: var(--ink); }
+/* État de l'enregistrement d'une capacité */
+.ed-etat { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.ed-etat.attente, .ed-etat.envoi { color: var(--accent); }
+.ed-etat.ok { color: var(--note-vert); }
+.ed-etat.erreur { color: var(--note-rouge); font-weight: 700; }
+.ed-etat .btn-lien { font-weight: 700; margin-left: 4px; }
