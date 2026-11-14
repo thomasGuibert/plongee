@@ -7,7 +7,7 @@
   var BLANC = ["Objectif final", "Position dans la formation", "Prérequis", "Critères d'évaluation", "Organisation"];
   var FAUTES = "Fautes classiques et correctifs";
   var JAUNE = ["Objectif de séance", "Justification", "Description des exercices", "Points clés à donner aux élèves",
-    "Consignes de sécurité", "Communication spécifique", "Prochaine séance"];
+    "Consignes de sécurité", "Communication spécifique", "Prochaine séance", "Notes"];
   var CLE_JETON = "plongee-jeton-github";
 
   function lireJeton() { try { return localStorage.getItem(CLE_JETON) || ""; } catch (e) { return ""; } }
@@ -116,7 +116,9 @@
         h += '<div class="stile todo"><small>Séance ' + (i + 1) + " · à rédiger</small>" + esc(s.titre) + "</div>";
       } else {
         h += '<details class="seance"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + '</summary><div class="sdetail">';
-        (s.champs || []).forEach(function (f) { h += '<div class="row"><div class="k">' + esc(f.champ) + '</div><div class="v">' + champHtml(f) + "</div></div>"; });
+        (s.champs || []).forEach(function (f) { if (f.champ !== "Notes") h += '<div class="row"><div class="k">' + esc(f.champ) + '</div><div class="v">' + champHtml(f) + "</div></div>"; });
+        var notes = trouver(s.champs, "Notes");
+        h += '<div class="row notes"><div class="k">Notes</div><div class="v">' + (notes && (notes.texte.length || notes.notes) ? champHtml(notes) : '<span class="vide">Aucune note</span>') + "</div></div>";
         h += "</div></details>";
       }
     });
@@ -159,11 +161,12 @@
       '<input id="ed-jeton-' + compteur + '" class="ed-jeton-val" type="password" autocomplete="off" placeholder="github_pat_…">' +
       '<p class="ed-aide">Créez un jeton « fine-grained » sur <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub</a>, limité au dépôt <code>' + esc(CFG.repo) + '</code>, avec la permission <em>Contents : Read and write</em>. Il reste enregistré dans ce navigateur seulement.</p></div>';
   }
-  function formHtml(d) {
+  function formHtml(d, nomCourant) {
     var h = '<form class="ed-form" novalidate>' +
       '<p class="ed-statut" role="status" hidden></p>' + JETON() +
       '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗ en haut de la capacité. Une ligne par élément. Sélectionnez du texte pour le mettre en forme.</p>' +
       barreOutils() +
+      '<div class="ed-champ"><label for="ed-nom-' + (++compteur) + '">Nom de la capacité</label><input id="ed-nom-' + compteur + '" class="ed-nom-capa" value="' + esc(nomCourant || "") + '"></div>' +
       '<fieldset class="ed-blanc"><legend>Capacité (bloc blanc)</legend>';
     BLANC.forEach(function (nom) { h += zone(nom, trouver(d.blanc, nom), false); });
     h += zone(FAUTES, d.fautes, false) + "</fieldset>";
@@ -245,16 +248,19 @@
       return r.json().then(function (j) { return j.sha; });
     });
   }
-  function ecrire(chemin, nom, texteYaml, sha, jeton) {
-    var corps = { message: "Modifier la capacité « " + nom + " » depuis le site", content: b64(texteYaml), branch: CFG.branche };
+  function ecrire(chemin, message, texteYaml, sha, jeton) {
+    var corps = { message: message, branch: CFG.branche };
     if (sha) corps.sha = sha;
+    if (texteYaml === null) { // suppression du fichier
+      if (!sha) return Promise.resolve({ status: 200, ok: true, json: function () { return Promise.resolve({}); } });
+      return api(chemin, jeton, { method: "DELETE", body: JSON.stringify(corps) });
+    }
+    corps.content = b64(texteYaml);
     return api(chemin, jeton, { method: "PUT", body: JSON.stringify(corps) });
   }
-  function enregistrer(id, nom, data, jeton) {
-    var chemin = "_data/capacites/" + id + ".yml";
-    var texteYaml = versYaml(data);
+  function enregistrer(chemin, message, texteYaml, jeton) {
     var essai = function (sha, dernier) {
-      return ecrire(chemin, nom, texteYaml, sha, jeton).then(function (r) {
+      return ecrire(chemin, message, texteYaml, sha, jeton).then(function (r) {
         if (r.status === 401 || r.status === 403) throw new Error("jeton");
         if ((r.status === 409 || r.status === 422) && !dernier) {
           // sha périmé : on relit le fichier et on réessaie une fois
@@ -262,10 +268,10 @@
         }
         if (r.status === 409) throw new Error("conflit");
         if (!r.ok) throw new Error("HTTP " + r.status);
-        return r.json().then(function (j) { if (j && j.content) SHA[chemin] = j.content.sha; });
+        return r.json().then(function (j) { SHA[chemin] = j && j.content ? j.content.sha : null; });
       });
     };
-    var depart = SHA[chemin] !== undefined ? Promise.resolve(SHA[chemin]) : lireSha(chemin, jeton);
+    var depart = SHA[chemin] !== undefined && texteYaml !== null ? Promise.resolve(SHA[chemin]) : lireSha(chemin, jeton);
     return depart.then(function (sha) { return essai(sha, false); });
   }
 
@@ -275,25 +281,31 @@
   function lireTampon(id) { try { return JSON.parse(localStorage.getItem(CLE_TAMPON + id) || "null"); } catch (e) { return null; } }
   function ecrireTampon(id, v) { try { if (v) localStorage.setItem(CLE_TAMPON + id, JSON.stringify(v)); else localStorage.removeItem(CLE_TAMPON + id); } catch (e) {} }
   var file = Promise.resolve();
-  function mettreEnFile(article, data, jeton) {
-    var id = article.dataset.id, nom = article.dataset.nom, t = Date.now();
-    ecrireTampon(id, { t: t, data: data, enAttente: true });
-    etat(article, "attente");
+  // Envoi générique : cle = clé du tampon, f = { chemin, message, texte, data }, suivi(quoi, message).
+  function envoyer(cle, f, jeton, suivi) {
+    var t = Date.now();
+    ecrireTampon(cle, { t: t, data: f.data, enAttente: true });
+    suivi("attente");
     file = file.then(function () {
-      var tampon = lireTampon(id);
+      var tampon = lireTampon(cle);
       if (!tampon || tampon.t !== t) return; // une version plus récente est déjà en file
-      etat(article, "envoi");
-      return enregistrer(id, nom, data, jeton).then(function () {
+      suivi("envoi");
+      return enregistrer(f.chemin, f.message, f.texte, jeton).then(function () {
         ecrireJeton(jeton);
-        var v = lireTampon(id);
-        if (v && v.t === t) { v.enAttente = false; ecrireTampon(id, v); }
-        etat(article, "ok");
+        var v = lireTampon(cle);
+        if (v && v.t === t) { v.enAttente = false; ecrireTampon(cle, v); }
+        suivi("ok");
       }).catch(function (err) {
         if (window.console) console.error("Enregistrement impossible", err);
         if (err.message === "jeton") ecrireJeton("");
-        etat(article, "erreur", messageErreur(err));
+        suivi("erreur", messageErreur(err));
       });
     });
+  }
+  function mettreEnFile(article, data, jeton) {
+    var id = article.dataset.id;
+    envoyer(id, { chemin: "_data/capacites/" + id + ".yml", message: "Modifier la capacité « " + article.dataset.nom + " » depuis le site", texte: versYaml(data), data: data },
+      jeton, function (quoi, m) { etat(article, quoi, m); });
   }
   function etat(article, quoi, message) {
     var e = article.querySelector(".ed-etat");
@@ -301,7 +313,7 @@
       e = document.createElement("p");
       e.className = "ed-etat";
       e.setAttribute("role", "status");
-      article.querySelector(".capa-top").insertAdjacentElement("afterend", e);
+      (article.querySelector(".capa-top, .bloc-top") || article.firstElementChild).insertAdjacentElement("afterend", e);
     }
     e.className = "ed-etat " + quoi;
     e.hidden = false;
@@ -361,7 +373,8 @@
     var corps = article.querySelector(".capa-body");
     article.dataset.vue = corps.innerHTML;
     article.classList.add("en-edition");
-    corps.innerHTML = formHtml(donnees(article));
+    corps.innerHTML = formHtml(donnees(article), article.dataset.nom);
+    try { article.dataset.initial = JSON.stringify(lireForm(corps.querySelector(".ed-form"), donnees(article))); } catch (e) { article.dataset.initial = ""; }
     var t = corps.querySelector(".ed-rte");
     if (t) t.focus();
   }
@@ -374,6 +387,9 @@
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-action]");
     if (!b) return;
+    if (b.closest(".board")) { actionAccueil(b); return; }
+    var bloc = b.closest(".bloc-edit");
+    if (bloc) { actionBloc(bloc, b); return; }
     var article = b.closest(".capa");
     if (!article) return;
     var a = b.dataset.action;
@@ -435,17 +451,314 @@
       afficher(statut, "Erreur dans la page : " + err.message, true);
       return;
     }
+    var champNom = form.querySelector(".ed-nom-capa");
+    var nouveauNom = champNom ? champNom.value.trim() : "";
     ecrireJeton(jeton);
-    fermer(article, vueHtml(data));
-    appliquer(article, data);
-    mettreEnFile(article, data, jeton);
+    if (article.dataset.initial && JSON.stringify(data) === article.dataset.initial) {
+      // Contenu inchangé (par ex. seul le nom a changé) : on n'écrit pas le fichier de la capacité.
+      fermer(article, article.dataset.vue);
+    } else {
+      fermer(article, vueHtml(data));
+      appliquer(article, data);
+      mettreEnFile(article, data, jeton);
+    }
+    if (nouveauNom && nouveauNom !== article.dataset.nom) renommerCapacite(article, nouveauNom, jeton);
   }
   document.addEventListener("submit", function (e) {
     var form = e.target.closest(".ed-form");
     if (!form) return;
     e.preventDefault();
-    sauver(form.closest(".capa"));
+    var bloc = form.closest(".bloc-edit");
+    if (bloc) sauverBloc(bloc); else sauver(form.closest(".capa"));
   });
+  // ---- Blocs de texte : en-tête de compétence, accueil ----
+  // Un bloc .bloc-edit porte data-chemin (fichier), data-type et ses données JSON (.bloc-data).
+  var SCHEMAS = {
+    competence: [
+      { cle: "nom", label: "Nom de la compétence", type: "ligne" },
+      { cle: "attendu", label: "Compétence attendue (objectif final)", type: "riche" },
+      { cle: "savoir_faire", label: "Savoir-faire · technique", type: "riche" },
+      { cle: "savoir_etre", label: "Savoir-être · comportement", type: "riche" },
+      { cle: "savoir", label: "Savoir · théorie", type: "riche" },
+      { cle: "capacites", label: "Capacités", type: "capacites" }
+    ],
+    accueil: [
+      { cle: "surtitre", label: "Surtitre", type: "ligne" },
+      { cle: "titre", label: "Titre", type: "ligne" },
+      { cle: "intro", label: "Introduction", type: "riche" },
+      { cle: "section_surtitre", label: "Surtitre de la liste des compétences", type: "ligne" },
+      { cle: "section_titre", label: "Titre de la liste des compétences", type: "ligne" },
+      { cle: "section_intro", label: "Texte de la liste des compétences", type: "riche" }
+    ]
+  };
+  function blocDonnees(bloc) { try { return JSON.parse(bloc.querySelector(".bloc-data").textContent); } catch (e) { return {}; } }
+  function richeVersEditeur(html) {
+    var lignes = String(html || "").split(/<br\s*\/?>/i);
+    return lignes.map(function (l) { return "<div>" + (nettoyer(l) || "<br>") + "</div>"; }).join("");
+  }
+  function editeurVersRiche(ed) { return lignesEditeur(ed).map(function (l) { return l.html; }).join("<br>"); }
+  function slug(t) {
+    return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "capacite";
+  }
+  function ligneCapa(c) {
+    var id = "ed-" + (++compteur);
+    return '<div class="ed-capa" data-id="' + esc(c.id || "") + '"><label class="sr-only" for="' + id + '">Nom de la capacité</label>' +
+      '<input id="' + id + '" value="' + esc(c.nom || "") + '" placeholder="Nom de la capacité">' +
+      '<button type="button" class="btn-lien" data-action="suppr-capa">Retirer</button></div>';
+  }
+  function formBloc(bloc) {
+    var d = blocDonnees(bloc), schema = SCHEMAS[bloc.dataset.type];
+    var h = '<form class="ed-form" novalidate><p class="ed-statut" role="status" hidden></p>' + JETON() +
+      '<p class="ed-aide">Validez avec ✓ ou annulez avec ✗.</p>' + barreOutils();
+    schema.forEach(function (c) {
+      var id = "ed-" + (++compteur);
+      if (c.type === "ligne") h += '<div class="ed-champ"><label for="' + id + '">' + esc(c.label) + '</label><input id="' + id + '" data-cle="' + c.cle + '" value="' + esc(d[c.cle] || "") + '"></div>';
+      else if (c.type === "riche") h += '<div class="ed-champ"><span class="ed-label" id="' + id + '-l">' + esc(c.label) + '</span><div class="ed-rte ed-riche" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="' + id + '-l" data-cle="' + c.cle + '">' + richeVersEditeur(d[c.cle]) + "</div></div>";
+      else if (c.type === "capacites") h += '<fieldset class="ed-capas"><legend>' + esc(c.label) + '</legend><p class="ed-aide">Retirer une capacité la retire de cette page ; ses séances restent dans le dépôt.</p><div class="ed-capas-liste">' +
+        (d.capacites || []).map(ligneCapa).join("") + '</div><button type="button" class="btn-lien" data-action="ajout-capa">+ Ajouter une capacité</button></fieldset>';
+    });
+    return h + '<div class="ed-actions"><button type="button" class="btn-lien" data-action="oublier"' + (lireJeton() ? "" : " hidden") + ">Oublier le jeton</button></div></form>";
+  }
+  function lireBloc(bloc, form) {
+    var d = blocDonnees(bloc);
+    SCHEMAS[bloc.dataset.type].forEach(function (c) {
+      if (c.type === "ligne") d[c.cle] = form.querySelector('[data-cle="' + c.cle + '"]').value.trim();
+      else if (c.type === "riche") d[c.cle] = editeurVersRiche(form.querySelector('[data-cle="' + c.cle + '"]'));
+      else if (c.type === "capacites") {
+        var pris = {};
+        d.capacites = Array.prototype.map.call(form.querySelectorAll(".ed-capa"), function (l) {
+          var nom = l.querySelector("input").value.trim(), id = l.dataset.id;
+          if (!nom) return null;
+          if (!id) { id = slug(nom); var base = id, n = 2; while (pris[id] || document.getElementById(id) && !l.dataset.id) id = base + "-" + (n++); }
+          pris[id] = true;
+          return { nom: nom, id: id };
+        }).filter(Boolean);
+      }
+    });
+    if (bloc.dataset.type === "competence") d.title = d.nom;
+    return d;
+  }
+  function texteBloc(bloc, d) {
+    if (bloc.dataset.type === "competence") return "---\n" + versYaml(d) + "---\n";
+    return versYaml(d);
+  }
+  function messageBloc(bloc, d) {
+    return bloc.dataset.type === "competence" ? "Modifier la compétence « " + d.nom + " » depuis le site" : "Modifier la page d'accueil depuis le site";
+  }
+  function afficherBloc(bloc, d) {
+    bloc.querySelector(".bloc-data").textContent = JSON.stringify(d);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-bloc-champ]"), function (el) {
+      if (el.closest(".bloc-edit") !== bloc && !el.hasAttribute("data-bloc-global")) return;
+      var cle = el.dataset.blocChamp, c = SCHEMAS[bloc.dataset.type].filter(function (x) { return x.cle === cle; })[0];
+      if (!c || d[cle] === undefined) return;
+      if (c.type === "riche") el.innerHTML = String(d[cle]).split(/<br\s*\/?>/i).map(nettoyer).join("<br>");
+      else el.textContent = d[cle];
+    });
+    if (bloc.dataset.type === "competence") {
+      document.title = d.nom + " · " + document.title.split(" · ").slice(-1)[0];
+      syncCapacites(d.capacites || []);
+    }
+  }
+  // Met la liste des capacités de la page en accord avec la compétence.
+  function syncCapacites(liste) {
+    var conteneur = document.querySelector(".capas"), modele = document.getElementById("modele-capa");
+    if (!conteneur || !modele) return;
+    var existants = {};
+    Array.prototype.forEach.call(conteneur.querySelectorAll(".capa[data-id]"), function (a) { existants[a.dataset.id] = a; });
+    liste.forEach(function (c) {
+      var a = existants[c.id];
+      if (!a) {
+        var tmp = document.createElement("div");
+        tmp.innerHTML = modele.innerHTML.replace(/__ID__/g, esc(c.id)).replace(/__NOM__/g, esc(c.nom));
+        a = tmp.firstElementChild;
+        var v = lireTampon(c.id); if (v) appliquer(a, v.data);
+      }
+      a.dataset.nom = c.nom;
+      var h3 = a.querySelector("h3"); if (h3) h3.textContent = c.nom;
+      conteneur.appendChild(a);
+      delete existants[c.id];
+    });
+    Object.keys(existants).forEach(function (k) { existants[k].remove(); });
+  }
+  function competenceBloc() { return document.querySelector('.bloc-edit[data-type="competence"]'); }
+  function renommerCapacite(article, nom, jeton) {
+    var bloc = competenceBloc();
+    article.dataset.nom = nom;
+    var h3 = article.querySelector("h3"); if (h3) h3.textContent = nom;
+    if (!bloc) return;
+    var d = blocDonnees(bloc);
+    (d.capacites || []).forEach(function (c) { if (c.id === article.dataset.id) c.nom = nom; });
+    afficherBloc(bloc, d);
+    envoyerBloc(bloc, d, jeton);
+  }
+  function envoyerBloc(bloc, d, jeton) {
+    envoyer(bloc.dataset.chemin, { chemin: bloc.dataset.chemin, message: messageBloc(bloc, d), texte: texteBloc(bloc, d), data: d },
+      jeton, function (quoi, m) { etat(bloc, quoi, m); });
+  }
+  function ouvrirBloc(bloc) {
+    boutons(bloc, true);
+    var corps = bloc.querySelector(".bloc-corps");
+    bloc.dataset.vue = corps.innerHTML;
+    bloc.classList.add("en-edition");
+    corps.innerHTML = formBloc(bloc);
+    var t = corps.querySelector("input, .ed-rte"); if (t) t.focus();
+  }
+  function fermerBloc(bloc, html) {
+    if (html !== undefined) bloc.querySelector(".bloc-corps").innerHTML = html;
+    bloc.classList.remove("en-edition");
+    boutons(bloc, false);
+  }
+  function sauverBloc(bloc) {
+    var form = bloc.querySelector(".ed-form");
+    if (!form) return;
+    var statut = form.querySelector(".ed-statut");
+    var champJeton = form.querySelector(".ed-jeton-val");
+    var jeton = (champJeton && champJeton.value.trim()) || lireJeton();
+    if (!jeton) {
+      form.querySelector(".ed-jeton").hidden = false;
+      afficher(statut, "Collez d'abord votre jeton GitHub dans le champ ci-dessous, puis cliquez à nouveau sur ✓.", true);
+      return;
+    }
+    var d;
+    try { d = lireBloc(bloc, form); } catch (err) { afficher(statut, "Erreur dans la page : " + err.message, true); return; }
+    if (bloc.dataset.type === "competence" && !d.nom) { afficher(statut, "Le nom de la compétence ne peut pas être vide.", true); return; }
+    ecrireJeton(jeton);
+    fermerBloc(bloc, bloc.dataset.vue);
+    afficherBloc(bloc, d);
+    envoyerBloc(bloc, d, jeton);
+  }
+  function actionBloc(bloc, b) {
+    var a = b.dataset.action;
+    if (a === "edit") { if (!bloc.classList.contains("en-edition")) ouvrirBloc(bloc); }
+    else if (a === "annuler") fermerBloc(bloc, bloc.dataset.vue);
+    else if (a === "valider") sauverBloc(bloc);
+    else if (a === "ajout-capa") {
+      var l = bloc.querySelector(".ed-capas-liste");
+      l.insertAdjacentHTML("beforeend", ligneCapa({}));
+      l.lastElementChild.querySelector("input").focus();
+    } else if (a === "suppr-capa") b.closest(".ed-capa").remove();
+    else if (a === "oublier") { ecrireJeton(""); b.hidden = true; bloc.querySelector(".ed-jeton").hidden = false; }
+    else if (a === "reessayer") {
+      var v = lireTampon(bloc.dataset.chemin), j = lireJeton();
+      if (!j) { ouvrirBloc(bloc); return; }
+      if (v) envoyerBloc(bloc, v.data, j);
+    }
+  }
+  function reprendreBlocs() {
+    Array.prototype.forEach.call(document.querySelectorAll(".bloc-edit[data-chemin]"), function (bloc) {
+      var v = lireTampon(bloc.dataset.chemin);
+      if (!v) return;
+      var publie = CFG.build && v.t / 1000 < CFG.build - 5;
+      if (publie && !v.enAttente) { ecrireTampon(bloc.dataset.chemin, null); return; }
+      afficherBloc(bloc, v.data);
+      if (v.enAttente) {
+        var jeton = lireJeton();
+        if (jeton) envoyerBloc(bloc, v.data, jeton);
+        else etat(bloc, "erreur", "Des modifications n'ont pas encore été envoyées à GitHub.");
+      }
+    });
+  }
+
+  // ---- Accueil : ajouter et supprimer des compétences ----
+  var CLE_OPS = "competences";
+  function lireOps() { var v = lireTampon(CLE_OPS); return v && v.ops ? v.ops : []; }
+  function ajouterOp(op) { var ops = lireOps(); ops.push(op); ecrireTampon(CLE_OPS, { t: Date.now(), ops: ops }); }
+  function retirerOp(t) { var ops = lireOps().filter(function (o) { return o.t !== t; }); ecrireTampon(CLE_OPS, ops.length ? { t: Date.now(), ops: ops } : null); }
+  function etatCarte(carte, quoi, message) {
+    var e = carte.querySelector(".ed-etat");
+    if (!e) { e = document.createElement("p"); carte.appendChild(e); }
+    e.className = "ed-etat " + quoi;
+    if (quoi === "attente") e.textContent = "En attente d'enregistrement…";
+    else if (quoi === "envoi") e.textContent = "Enregistrement sur GitHub…";
+    else if (quoi === "ok") e.textContent = carte.classList.contains("supprimee") ? "Supprimée. Le site se met à jour dans une à deux minutes." : "Créée. Sa page sera en ligne dans une à deux minutes.";
+    else e.innerHTML = esc(message) + ' <button type="button" class="btn-lien" data-action="reessayer-comp">Réessayer</button>';
+  }
+  function jetonCarte(carte) {
+    var champ = carte.querySelector(".ed-jeton-val");
+    var j = (champ && champ.value.trim()) || lireJeton();
+    if (!j && !champ) carte.insertAdjacentHTML("beforeend", JETON().replace(" hidden", ""));
+    return j;
+  }
+  function lancerOp(carte, op, jeton) {
+    var texte = op.type === "creer" ? "---\n" + versYaml(op.data) + "---\n" : null;
+    var message = (op.type === "creer" ? "Créer" : "Supprimer") + " la compétence « " + op.nom + " » depuis le site";
+    envoyer("op-" + op.t, { chemin: op.chemin, message: message, texte: texte, data: op }, jeton, function (quoi, m) {
+      etatCarte(carte, quoi, m);
+      if (quoi === "ok") { ecrireTampon("op-" + op.t, null); op.envoye = true; majOp(op); }
+    });
+  }
+  function majOp(op) { var ops = lireOps().map(function (o) { return o.t === op.t ? op : o; }); ecrireTampon(CLE_OPS, { t: Date.now(), ops: ops }); }
+  function carteNouvelle(op) {
+    var div = document.createElement("section");
+    div.className = "lane dim creee";
+    div.dataset.chemin = op.chemin; div.dataset.op = op.t;
+    div.innerHTML = '<div class="lane-top"><a class="lane-head" href="' + esc(CFG.base + "competences/" + op.slug + "/") + '"><span class="eyebrow">Compétence</span><h2>' + esc(op.nom) + "</h2></a></div>" +
+      '<p class="next">Aucune capacité pour l\'instant.</p>';
+    var nouvelle = document.querySelector(".lane-nouvelle");
+    nouvelle.parentNode.insertBefore(div, nouvelle);
+    return div;
+  }
+  function actionAccueil(b) {
+    var a = b.dataset.action, carte = b.closest(".lane");
+    if (a === "suppr-comp") { carte.querySelector(".lane-confirm").hidden = false; return; }
+    if (a === "annuler-suppr") { carte.querySelector(".lane-confirm").hidden = true; return; }
+    if (a === "confirmer-suppr") {
+      var j = jetonCarte(carte.querySelector(".lane-confirm"));
+      if (!j) return;
+      var op = { t: Date.now(), type: "supprimer", chemin: carte.dataset.chemin, nom: carte.dataset.nom };
+      ajouterOp(op);
+      carte.querySelector(".lane-confirm").hidden = true;
+      carte.classList.add("supprimee");
+      lancerOp(carte, op, j);
+      return;
+    }
+    if (a === "nouvelle-comp") { carte.querySelector(".nouvelle-comp-form").hidden = false; b.hidden = true; carte.querySelector("#nc-nom").focus(); return; }
+    if (a === "annuler-comp") { carte.querySelector(".nouvelle-comp-form").hidden = true; carte.querySelector(".nouvelle-comp").hidden = false; return; }
+    if (a === "reessayer-comp") {
+      var t = +carte.dataset.op, o = lireOps().filter(function (x) { return x.t === t; })[0];
+      var jj = jetonCarte(carte);
+      if (o && jj) lancerOp(carte, o, jj);
+    }
+  }
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest(".nouvelle-comp-form");
+    if (!form) return;
+    e.preventDefault();
+    var nom = form.querySelector("#nc-nom").value.trim();
+    if (!nom) return;
+    var j = jetonCarte(form);
+    if (!j) return;
+    var pris = {};
+    Array.prototype.forEach.call(document.querySelectorAll(".lane[data-chemin]"), function (l) { pris[l.dataset.chemin] = true; });
+    var base = slug(nom), id = base, n = 2;
+    while (pris["_competences/" + id + ".md"]) id = base + "-" + (n++);
+    var ordre = Math.max.apply(null, [0].concat(Array.prototype.map.call(document.querySelectorAll(".lane[data-ordre]"), function (l) { return +l.dataset.ordre || 0; }))) + 1;
+    var op = { t: Date.now(), type: "creer", chemin: "_competences/" + id + ".md", slug: id, nom: nom,
+      data: { ordre: ordre, nom: nom, attendu: "", savoir_faire: "", savoir_etre: "", savoir: "", capacites: [], layout: "competence", title: nom } };
+    ajouterOp(op);
+    var carte = carteNouvelle(op);
+    carte.dataset.ordre = ordre;
+    form.reset(); form.hidden = true; form.parentNode.querySelector(".nouvelle-comp").hidden = false;
+    var champ = form.querySelector(".ed-jeton"); if (champ) champ.remove();
+    lancerOp(carte, op, j);
+  });
+  function reprendreAccueil() {
+    if (!document.querySelector(".board")) return;
+    lireOps().forEach(function (op) {
+      var publie = CFG.build && op.t / 1000 < CFG.build - 5;
+      if (publie && op.envoye) { retirerOp(op.t); return; }
+      var carte;
+      if (op.type === "creer") carte = carteNouvelle(op);
+      else {
+        carte = document.querySelector('.lane[data-chemin="' + op.chemin + '"]');
+        if (!carte) { if (op.envoye) retirerOp(op.t); return; }
+        carte.classList.add("supprimee");
+      }
+      carte.dataset.op = op.t;
+      if (!op.envoye) { var j = lireJeton(); if (j) lancerOp(carte, op, j); else etatCarte(carte, "erreur", "Pas encore envoyée à GitHub."); }
+    });
+  }
+
   // ---- Barre d'outils ----
   var dernierEditeur = null, derniereSelection = null;
   function memoriser() {
@@ -502,5 +815,7 @@
     var t = (e.clipboardData || window.clipboardData).getData("text/plain");
     document.execCommand("insertText", false, t);
   });
+  reprendreBlocs();
   reprendre();
+  reprendreAccueil();
 })();

@@ -2,18 +2,23 @@
 layout: default
 ---
 <div class="comp-page">
-<nav class="trail"><a href="{{ '/' | relative_url }}">Toutes les compétences</a> › {{ page.nom }}</nav>
+<nav class="trail"><a href="{{ '/' | relative_url }}">Toutes les compétences</a> › <span data-bloc-champ="nom" data-bloc-global>{{ page.nom }}</span></nav>
 
-<section>
+<section class="bloc-edit bloc-competence" data-type="competence" data-chemin="{{ page.path }}">
+  <script type="application/json" class="bloc-data">{"ordre": {{ page.ordre | jsonify }}, "nom": {{ page.nom | jsonify }}, "attendu": {{ page.attendu | jsonify }}, "savoir_faire": {{ page.savoir_faire | jsonify }}, "savoir_etre": {{ page.savoir_etre | jsonify }}, "savoir": {{ page.savoir | jsonify }}, "source": {{ page.source | jsonify }}, "capacites": {% if page.capacites %}{{ page.capacites | jsonify }}{% else %}[]{% endif %}, "layout": "competence", "title": {{ page.title | jsonify }}}</script>
+  <div class="bloc-top">{% include outils-edition.html label=page.nom classe="sur-fonce" %}</div>
+  <div class="bloc-corps">
   <div class="comp-head">
     <div class="eyebrow">Compétence · objectif final</div>
-    <h1>{{ page.nom }}</h1>
-    <p>{{ page.attendu }}</p>
+    <h1 data-bloc-champ="nom">{{ page.nom }}</h1>
+    <p data-bloc-champ="attendu">{{ page.attendu }}</p>
   </div>
   <div class="savoirs savoirs-acc">
-    <details open><summary>Savoir-faire · technique</summary><p>{{ page.savoir_faire }}</p></details>
-    <details open><summary>Savoir-être · comportement</summary><p>{{ page.savoir_etre }}</p></details>
-    <details open><summary>Savoir · théorie</summary><p>{{ page.savoir }}</p></details>
+    <details open><summary>Savoir-faire · technique</summary><p data-bloc-champ="savoir_faire">{{ page.savoir_faire }}</p></details>
+    <details open><summary>Savoir-être · comportement</summary><p data-bloc-champ="savoir_etre">{{ page.savoir_etre }}</p></details>
+    <details open><summary>Savoir · théorie</summary><p data-bloc-champ="savoir">{{ page.savoir }}</p></details>
+  </div>
+  {%- if page.source %}<p class="source">Source : {{ page.source }}</p>{% endif %}
   </div>
 </section>
 
@@ -27,7 +32,7 @@ layout: default
       <div class="capa-titre"><div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div></div>
       <span class="capa-actions">
         <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %}{% if d.brouillon %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a>{% endif %}</span>
-        <span class="capa-tools"><button type="button" class="btn-icone" data-action="edit" title="Modifier" aria-label="Modifier {{ c.nom | escape }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg></button><button type="button" class="btn-icone ok" data-action="valider" title="Valider" aria-label="Valider" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="btn-icone ko" data-action="annuler" title="Annuler" aria-label="Annuler" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>
+        {% include outils-edition.html label=c.nom %}
       </span>
     </div>
     <div class="capa-body">
@@ -44,7 +49,9 @@ layout: default
       <details class="seance"{% if forloop.first %} open{% endif %}>
         <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}</summary>
         <div class="sdetail">
-          {%- for f in s.champs %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endfor %}
+          {%- for f in s.champs %}{% unless f.champ == "Notes" %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endunless %}{% endfor %}
+          {%- assign notes = s.champs | where: "champ", "Notes" | first -%}
+          <div class="row notes"><div class="k">Notes</div><div class="v">{% if notes and notes.texte.size > 0 or notes.notes %}{% include champ.html f=notes %}{% else %}<span class="vide">Aucune note</span>{% endif %}</div></div>
         </div>
       </details>
       {%- endif -%}
@@ -55,7 +62,7 @@ layout: default
   </article>
   {%- else -%}
   <article class="capa empty" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
-    <div class="capa-top"><div class="capa-titre"><h3>{{ c.nom }}</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span><span class="capa-tools"><button type="button" class="btn-icone" data-action="edit" title="Modifier" aria-label="Modifier {{ c.nom | escape }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg></button><button type="button" class="btn-icone ok" data-action="valider" title="Valider" aria-label="Valider" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="btn-icone ko" data-action="annuler" title="Annuler" aria-label="Annuler" hidden><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span></span></div>
+    <div class="capa-top"><div class="capa-titre"><h3>{{ c.nom }}</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span>{% include outils-edition.html label=c.nom %}</span></div>
     <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
   {%- endif -%}
@@ -63,11 +70,17 @@ layout: default
 </div>
 </div>
 
+<template id="modele-capa">
+  <article class="capa empty" id="__ID__" data-id="__ID__" data-nom="__NOM__">
+    <div class="capa-top"><div class="capa-titre"><h3>__NOM__</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span>{% include outils-edition.html label="la capacité" %}</span></div>
+    <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
+  </article>
+</template>
+
 <script>
   // Savoirs : ouverts sur ordinateur, repliés sur mobile au chargement.
   if (window.matchMedia("(max-width: 720px)").matches) {
     document.querySelectorAll(".savoirs-acc details").forEach(function (d) { d.open = false; });
   }
 </script>
-<script>window.EDITION = { repo: "thomasGuibert/plongee", branche: "main", brouillons: "{{ '/brouillons/' | relative_url }}", build: {{ site.time | date: '%s' }} };</script>
-<script src="{{ '/assets/js/edition.js' | relative_url }}?v={{ site.time | date: '%s' }}"></script>
+{% include edition.html %}

@@ -1,17 +1,25 @@
 ---
 layout: default
 ---
-<section class="hero">
-  <p class="eyebrow">Initiateur · Niveaux 1 et 2</p>
-  <h1>Cours de plongée</h1>
-  <p class="lead">Ce site rassemble les cours que je prépare en tant qu'initiateur pour les plongeurs Niveau 1 et Niveau 2.
-  Il est en cours de construction : le contenu arrivera au fil des séances.</p>
+{%- assign acc = site.data.accueil -%}
+<section class="bloc-edit bloc-accueil" data-type="accueil" data-chemin="_data/accueil.yml">
+  <script type="application/json" class="bloc-data">{{ acc | jsonify }}</script>
+  <div class="bloc-top">{% include outils-edition.html label="la page d'accueil" %}</div>
+  <div class="bloc-corps">
+    <div class="hero">
+      <p class="eyebrow" data-bloc-champ="surtitre">{{ acc.surtitre }}</p>
+      <h1 data-bloc-champ="titre">{{ acc.titre }}</h1>
+      <p class="lead" data-bloc-champ="intro">{{ acc.intro }}</p>
+    </div>
+    <div class="intro-liste">
+      <p class="eyebrow" data-bloc-champ="section_surtitre">{{ acc.section_surtitre }}</p>
+      <h2 class="section-title" data-bloc-champ="section_titre">{{ acc.section_titre }}</h2>
+      <p class="lead" data-bloc-champ="section_intro">{{ acc.section_intro }}</p>
+    </div>
+  </div>
 </section>
 
 <section>
-<p class="eyebrow">Niveau 1 · PE20</p>
-<h2 class="section-title">Compétences du Niveau 1</h2>
-<p class="lead">Chaque compétence regroupe des capacités, et chaque capacité se travaille en une ou plusieurs séances. Une compétence est validée quand son savoir-faire, son savoir-être et son savoir sont acquis.</p>
 <div class="legend">
   <span><i class="dot"></i>séance rédigée</span>
   <span><i class="dot todo"></i>séance annoncée, à rédiger</span>
@@ -22,12 +30,16 @@ layout: default
 {%- for c in comps -%}
   {%- assign avec = 0 -%}
   {%- for capa in c.capacites -%}{%- if site.data.capacites[capa.id] -%}{%- assign avec = avec | plus: 1 -%}{%- endif -%}{%- endfor -%}
-  {%- assign pct = avec | times: 100 | divided_by: c.capacites.size -%}
-  <section class="lane{% if avec == 0 %} dim{% endif %}">
-    <a class="lane-head" href="{{ c.url | relative_url }}">
-      <span class="eyebrow">Compétence</span>
-      <h2>{{ c.nom }}</h2>
-    </a>
+  {%- assign pct = 0 -%}{%- if c.capacites.size > 0 -%}{%- assign pct = avec | times: 100 | divided_by: c.capacites.size -%}{%- endif -%}
+  <section class="lane{% if avec == 0 %} dim{% endif %}" data-chemin="{{ c.path }}" data-nom="{{ c.nom | escape }}" data-ordre="{{ c.ordre }}">
+    <div class="lane-top">
+      <a class="lane-head" href="{{ c.url | relative_url }}">
+        <span class="eyebrow">Compétence</span>
+        <h2>{{ c.nom }}</h2>
+      </a>
+      <button type="button" class="btn-icone btn-suppr" data-action="suppr-comp" title="Supprimer la compétence" aria-label="Supprimer la compétence {{ c.nom | escape }}"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+    </div>
+    <div class="lane-confirm" hidden><p>Supprimer « {{ c.nom }} » ? La page de la compétence disparaît ; les séances de ses capacités restent dans le dépôt.</p><button type="button" class="btn-danger" data-action="confirmer-suppr">Supprimer</button> <button type="button" class="btn-lien" data-action="annuler-suppr">Garder</button></div>
     <div class="meter" title="{{ avec }} capacité(s) avec au moins une séance"><i style="width:{{ pct }}%"></i></div>
     <details class="lane-acc">
       <summary>Savoir-faire, savoir-être, savoir</summary>
@@ -60,6 +72,15 @@ layout: default
     </details>
   </section>
 {%- endfor -%}
+  <section class="lane lane-nouvelle" data-max-ordre="{{ comps | map: 'ordre' | sort | last }}">
+    <button type="button" class="nouvelle-comp" data-action="nouvelle-comp"><span aria-hidden="true">+</span> Nouvelle compétence</button>
+    <form class="nouvelle-comp-form" hidden>
+      <label for="nc-nom">Nom de la nouvelle compétence</label>
+      <input id="nc-nom" required placeholder="Ex. : Se ventiler">
+      <div class="ed-actions"><button type="submit" class="btn-primaire">Créer</button><button type="button" class="btn-lien" data-action="annuler-comp">Annuler</button></div>
+      <p class="ed-aide">La page de la compétence sera en ligne une à deux minutes après sa création. Vous y ajouterez ensuite son objectif, ses savoirs et ses capacités avec le stylo.</p>
+    </form>
+  </section>
 </div>
 </section>
 <script>
@@ -68,3 +89,4 @@ layout: default
     document.querySelectorAll(".lane-capas").forEach(function (d) { d.open = false; });
   }
 </script>
+{% include edition.html %}
