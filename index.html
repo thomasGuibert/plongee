@@ -43,7 +43,7 @@ layout: default
     {%- for capa in c.capacites -%}
       {%- assign d = site.data.capacites[capa.id] -%}
       <a class="crow" href="{{ c.url | relative_url }}#{{ capa.id }}">
-        <span>{{ capa.nom }}
+        <span><span class="crow-nom">{{ capa.nom }}</span>
           {%- if d -%}
             {%- assign s0 = d.seances | first -%}
             {%- assign p = s0.champs | where: "champ", "Prochaine séance" | first -%}

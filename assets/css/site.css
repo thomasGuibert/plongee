@@ -259,3 +259,6 @@ details[open] > .stile small { color: var(--on-yellow); }
 .ed-emojis > summary::-webkit-details-marker { display: none; }
 .ed-emojis-liste { position: absolute; z-index: 6; right: 0; top: 40px; width: 228px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; padding: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
 @media (max-width: 560px) { .ed-emojis-liste { right: auto; left: 0; } }
+/* Accueil : nom de la capacité en gras, « ensuite » en normal */
+.crow-nom { font-weight: 700; }
+.next b { font-weight: 400; }
