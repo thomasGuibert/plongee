@@ -48,13 +48,14 @@ layout: default
       </details>
       {%- endif -%}
     {%- endfor -%}
+    <button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button>
     </div>
     </div>
   </article>
   {%- else -%}
   <article class="capa empty" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
     <div class="capa-top"><div class="capa-titre"><span class="capa-tools"><button type="button" class="btn-icone" data-action="edit" title="Modifier" aria-label="Modifier {{ c.nom | escape }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></svg></button><button type="button" class="btn-icone ok" data-action="valider" title="Valider" aria-label="Valider" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button><button type="button" class="btn-icone ko" data-action="annuler" title="Annuler" aria-label="Annuler" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span><h3>{{ c.nom }}</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span></span></div>
-    <div class="capa-body"></div>
+    <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
   {%- endif -%}
 {%- endfor -%}

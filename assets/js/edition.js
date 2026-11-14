@@ -69,6 +69,7 @@
         h += "</div></details>";
       }
     });
+    h += '<button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button>';
     return h + "</div>";
   }
 
@@ -219,6 +220,16 @@
     var article = b.closest(".capa");
     if (!article) return;
     var a = b.dataset.action;
+    if (a === "nouvelle-seance") {
+      var neuve = !article.querySelector(".capa-data");
+      ouvrir(article);
+      var l = article.querySelector(".ed-seances");
+      if (!neuve) l.insertAdjacentHTML("beforeend", formSeance({ titre: "" }, l.children.length));
+      var titre = l.lastElementChild.querySelector(".ed-titre");
+      l.lastElementChild.scrollIntoView({ block: "start", behavior: "smooth" });
+      titre.focus({ preventScroll: true });
+      return;
+    }
     if (a === "valider") { var f = article.querySelector(".ed-form"); if (f) f.requestSubmit(); }
     else if (a === "edit") { if (!article.classList.contains("en-edition")) ouvrir(article); }
     else if (a === "annuler") fermer(article, article.dataset.vue || "");

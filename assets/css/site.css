@@ -211,3 +211,8 @@ details[open] > .stile small { color: var(--on-yellow); }
 .lane-savoirs dt { font-weight: 700; margin-top: 6px; }
 .lane-savoirs dd { margin: 0; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .lane-acc > summary::before { transition: none; } }
+.stile.add { font: inherit; text-align: left; border-style: dashed; background: transparent; color: var(--accent); font-weight: 700; }
+.stile.add small { font-weight: 400; }
+.stile.add:hover { background: var(--yellow-soft); }
+.stile.add:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ed-seance { scroll-margin-top: 16px; }
