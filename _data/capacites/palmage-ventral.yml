@@ -1,56 +1,56 @@
-brouillon: palmage.pdf
-rattachement: 'Rattachement à confirmer : ce brouillon couvre aussi le palmage dorsal, costal et de sustentation.'
+brouillon: "palmage.pdf"
+rattachement: "Rattachement à confirmer : ce brouillon couvre aussi le palmage dorsal, costal et de sustentation."
 blanc:
-- champ: Objectif final
-  texte:
-  - Se déplacer efficacement, sans fatigue
-- champ: Position dans la formation
-  texte:
-  - Début
-- champ: Prérequis
-  texte:
-  - Savoir nager
-  - Utilisation d'un masque et d'un tuba
-- champ: Critères d'évaluation
-  texte:
-  - Faire les exercices sans s'essoufler
-- champ: Organisation
-  texte:
-  - Grand bassin
-  - 15minutes
-  - en début de séance
-  - pas de plongeurs
+  - champ: "Objectif final"
+    texte:
+      - "Se déplacer efficacement, sans fatigue"
+  - champ: "Position dans la formation"
+    texte:
+      - "Début"
+  - champ: "Prérequis"
+    texte:
+      - "Savoir nager"
+      - "Utilisation d'un masque et d'un tuba (sais le vider)"
+  - champ: "Critères d'évaluation"
+    texte:
+      - "Faire les exercices sans s'essoufler"
+  - champ: "Organisation"
+    texte:
+      - "Grand bassin"
+      - "15minutes"
+      - "en début de séance"
+      - "pas de plongeurs"
 fautes:
-  champ: Fautes classiques et correctifs
+  champ: "Fautes classiques et correctifs"
   texte:
-  - Mauvais geste -> revoir la posture
-  - Essoufflement -> revoir la vitesse de déplacement et l'efficacité des mouvements
+    - "Mauvais geste -&gt; revoir la posture"
+    - "Essoufflement -&gt; revoir la vitesse de déplacement et l'efficacité des mouvements"
 seances:
-- titre: Palmage
-  champs:
-  - champ: Objectif de séance
-    texte:
-    - Se déplacer et se maintenir en surface efficacement, sans fatigue
-  - champ: Justification
-    texte:
-    - Se déplacer sans s'essouffler
-  - champ: Description des exercices
-    texte:
-    - 50m PMT puis tenir 3s d'apnée
-    - 25m dorsal puis tenir 3s d'apnée
-    - 25m costal puis tenir 3s d'apnée
-    - 10s sustentation puis tenir 3s d'apnée
-  - champ: Points clés à donner aux élèves
-    texte:
-    - Explication de l'essoufflement
-    - 'Geste: Jambe tendu mais souple, le mouvement vient du bassin, c''est les cuisses qui forcent pas les abdo, ni les mollets'
-  - champ: Consignes de sécurité
-    texte:
-    - pas de plongeurs
-    - proche du bord
-  - champ: Communication spécifique
-    texte:
-    - N/A
-  - champ: Prochaine séance
-    texte:
-    - Nage capelée puis en immersion
+  - titre: "Palmage"
+    champs:
+      - champ: "Objectif de séance"
+        texte:
+          - "Se déplacer et se maintenir en surface efficacement, sans fatigue"
+      - champ: "Justification"
+        texte:
+          - "Se déplacer sans s'essouffler"
+      - champ: "Description des exercices"
+        texte:
+          - "50m PMT puis tenir 3s d'apnée"
+          - "25m dorsal puis tenir 3s d'apnée"
+          - "25m costal puis tenir 3s d'apnée"
+          - "10s sustentation puis tenir 3s d'apnée"
+      - champ: "Points clés à donner aux élèves"
+        texte:
+          - "Explication de l'essoufflement"
+          - "Geste: Jambe tendu mais souple, le mouvement vient du bassin, c'est les cuisses qui forcent pas les abdo, ni les mollets"
+      - champ: "Consignes de sécurité"
+        texte:
+          - "pas de plongeurs"
+          - "proche du bord"
+      - champ: "Communication spécifique"
+        texte:
+          - "N/A"
+      - champ: "Prochaine séance"
+        texte:
+          - "Nage capelée puis en immersion"
