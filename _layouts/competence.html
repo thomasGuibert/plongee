@@ -10,14 +10,11 @@ layout: default
     <h1>{{ page.nom }}</h1>
     <p>{{ page.attendu }}</p>
   </div>
-  <details class="savoirs-acc" open>
-    <summary>Savoir-faire, savoir-être et savoir</summary>
-    <div class="savoirs">
-      <div><h2>Savoir-faire · technique</h2><p>{{ page.savoir_faire }}</p></div>
-      <div><h2>Savoir-être · comportement</h2><p>{{ page.savoir_etre }}</p></div>
-      <div><h2>Savoir · théorie</h2><p>{{ page.savoir }}</p></div>
-    </div>
-  </details>
+  <div class="savoirs savoirs-acc">
+    <details open><summary>Savoir-faire · technique</summary><p>{{ page.savoir_faire }}</p></details>
+    <details open><summary>Savoir-être · comportement</summary><p>{{ page.savoir_etre }}</p></details>
+    <details open><summary>Savoir · théorie</summary><p>{{ page.savoir }}</p></details>
+  </div>
 </section>
 
 <div class="capas">
@@ -69,7 +66,7 @@ layout: default
 <script>
   // Savoirs : ouverts sur ordinateur, repliés sur mobile au chargement.
   if (window.matchMedia("(max-width: 720px)").matches) {
-    document.querySelectorAll(".savoirs-acc").forEach(function (d) { d.open = false; });
+    document.querySelectorAll(".savoirs-acc details").forEach(function (d) { d.open = false; });
   }
 </script>
 <script>window.EDITION = { repo: "thomasGuibert/plongee", branche: "main", brouillons: "{{ '/brouillons/' | relative_url }}" };</script>
