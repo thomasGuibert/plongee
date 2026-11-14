@@ -54,3 +54,11 @@ seances:
       - champ: "Prochaine séance"
         texte:
           - "Nage capelée puis en immersion"
+      - champ: "Notes"
+        texte:
+          - "Compléter la prez avec la sécu, je suis responsable du bassin"
+          - "Brief prérequis a la séance contexte du bassin avant même d'aborder le sujet. C'est la partie pour le jury"
+          - "Présentation perso et de l'élève"
+          - "Planche comme outil"
+          - "Rappel preragative 100m distance bateau"
+          - "Initiation à l'apnée"
