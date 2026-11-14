@@ -1,20 +1,16 @@
 # Cours de plongée — instructions pour Claude
 
-Site **Jekyll** publié par GitHub Pages : cours Plongeur Niveau 1 (PE20 FFESSM) et fiches de révision N2.
-Structure et ajout d'une séance : voir `README.md`. Contexte et état du projet :
-`docs/contexte-projet-claude.md`.
+Site **Jekyll** publié par GitHub Pages (déploiement depuis la branche `main`, dossier racine).
+Le site a été remis à zéro le 2026-11-14 : aucun ancien contenu pédagogique ne doit être réutilisé.
+Le contenu du cours vient de Thomas.
 
 ## Règles
 
-- Le contenu suit le PE20 (décembre 2025) et le MFT. Ne pas inventer de technique, de seuil ou de
-  règle de sécurité : citer la source ou poser la question.
-- Une technique n'existe qu'une fois, dans `_data/techniques.yml`. Les séances la référencent par son id.
+- Ne pas inventer de contenu pédagogique, de technique, de seuil ou de règle de sécurité : poser la question.
 - Garder la compatibilité GitHub Pages : uniquement les plugins de la gem `github-pages`, pas de
   workflow de build sur mesure.
 - Avant de pousser, construire le site en local et vérifier qu'il n'y a pas d'erreur :
   `LANG=C.UTF-8 bundle exec jekyll build`.
-- Les fichiers propres au dépôt (`CLAUDE.md`, `docs/`) sont exclus du site dans `_config.yml`.
-
-## Conventions
-
-- Textes en français. Ids de techniques et de compétences en minuscules, sans accents.
+- Publication : pas de merge commit. Rebaser sur `main` puis pousser (force push si besoin) pour
+  garder un historique linéaire.
+- Textes en français.
