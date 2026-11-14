@@ -140,7 +140,7 @@
       '<button type="button" class="ed-outil ed-pastille c-fond-noir" data-cmd="couleur" data-val="noir" title="Texte noir (couleur normale)" aria-label="Texte noir (couleur normale)"></button>';
     Object.keys(COULEURS).forEach(function (k) { h += '<button type="button" class="ed-outil ed-pastille c-fond-' + k + '" data-cmd="couleur" data-val="' + k + '" title="Texte ' + k + '" aria-label="Texte ' + k + '"></button>'; });
     h += b("sans-couleur", "A", "Effacer toute la mise en forme", "ed-sans") + '<span class="ed-sep"></span>' +
-      '<span class="ed-sep"></span><details class="ed-emojis"><summary class="ed-outil" title="Emoji" aria-label="Emoji">😊</summary><div class="ed-emojis-liste">' +
+      '<details class="ed-emojis"><summary class="ed-outil" title="Emoji" aria-label="Emoji">😊</summary><div class="ed-emojis-liste">' +
       EMOJIS.map(function (e) { return '<button type="button" class="ed-outil" data-cmd="emoji" data-val="' + e + '">' + e + "</button>"; }).join("") +
       "</div></details></div>";
     return h;
