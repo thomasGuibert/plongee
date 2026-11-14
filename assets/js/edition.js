@@ -96,6 +96,11 @@
   }
 
   // ---- Affichage (même rendu que le gabarit Jekyll) ----
+  var SVG = function (d) { return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>'; };
+  var OUTILS_NOTE = '<span class="capa-tools outils-note">' +
+    '<button type="button" class="btn-icone" data-action="note-edit" title="Modifier" aria-label="Modifier les notes de la séance">' + SVG("M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4") + "</button>" +
+    '<button type="button" class="btn-icone ok" data-action="note-valider" title="Valider" aria-label="Valider" hidden>' + SVG("M5 12.5l4.5 4.5L19 7.5") + "</button>" +
+    '<button type="button" class="btn-icone ko" data-action="note-annuler" title="Annuler" aria-label="Annuler" hidden>' + SVG("M6 6l12 12M18 6L6 18") + "</button></span>";
   function champHtml(f) {
     if (!f) return "";
     var h = "", t = f.texte || [];
@@ -115,10 +120,10 @@
       if (s.a_rediger) {
         h += '<div class="stile todo"><small>Séance ' + (i + 1) + " · à rédiger</small>" + esc(s.titre) + "</div>";
       } else {
-        h += '<details class="seance"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + '</summary><div class="sdetail">';
+        h += '<details class="seance" data-seance="' + i + '"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + '</summary><div class="sdetail">';
         (s.champs || []).forEach(function (f) { if (f.champ !== "Notes") h += '<div class="row"><div class="k">' + esc(f.champ) + '</div><div class="v">' + champHtml(f) + "</div></div>"; });
         var notes = trouver(s.champs, "Notes");
-        h += '<div class="row notes"><div class="k">Notes</div><div class="v">' + (notes && (notes.texte.length || notes.notes) ? champHtml(notes) : '<span class="vide">Aucune note</span>') + "</div></div>";
+        h += '<div class="row notes"><div class="k"><span>Notes</span>' + OUTILS_NOTE + '</div><div class="v">' + (notes && (notes.texte.length || notes.notes) ? champHtml(notes) : '<span class="vide">Aucune note</span>') + "</div></div>";
         h += "</div></details>";
       }
     });
@@ -393,6 +398,7 @@
     var article = b.closest(".capa");
     if (!article) return;
     var a = b.dataset.action;
+    if (a.indexOf("note-") === 0) { actionNote(article, b.closest(".row.notes"), a); return; }
     if (a === "nouvelle-seance") {
       var neuve = !article.querySelector(".capa-data");
       ouvrir(article);
@@ -426,6 +432,55 @@
       article.querySelector(".ed-jeton").hidden = false;
     }
   });
+
+  // ---- Édition des seules notes d'une séance ----
+  function boutonsNote(row, edition) {
+    row.querySelector('[data-action="note-edit"]').hidden = edition;
+    row.querySelector('[data-action="note-valider"]').hidden = !edition;
+    row.querySelector('[data-action="note-annuler"]').hidden = !edition;
+  }
+  function actionNote(article, row, a) {
+    var v = row.querySelector(".v");
+    var idx = +row.closest(".seance").dataset.seance;
+    if (a === "note-edit") {
+      if (row.classList.contains("en-edition")) return;
+      var s = (donnees(article).seances || [])[idx] || {};
+      row.dataset.vue = v.innerHTML;
+      row.classList.add("en-edition");
+      compteur++;
+      v.innerHTML = '<div class="ed-note">' + '<p class="ed-statut" role="status" hidden></p>' + JETON() + barreOutils() +
+        '<div class="ed-rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes de la séance">' + champVersEditeur(trouver(s.champs, "Notes")) + "</div></div>";
+      boutonsNote(row, true);
+      var ed = v.querySelector(".ed-rte"); ed.focus();
+      return;
+    }
+    if (a === "note-annuler") {
+      v.innerHTML = row.dataset.vue || "";
+      row.classList.remove("en-edition");
+      boutonsNote(row, false);
+      return;
+    }
+    // note-valider
+    var champJeton = v.querySelector(".ed-jeton-val");
+    var jeton = (champJeton && champJeton.value.trim()) || lireJeton();
+    if (!jeton) {
+      v.querySelector(".ed-jeton").hidden = false;
+      afficher(v.querySelector(".ed-statut"), "Collez d'abord votre jeton GitHub dans le champ ci-dessous, puis cliquez à nouveau sur ✓.", true);
+      return;
+    }
+    ecrireJeton(jeton);
+    var data = donnees(article), sc = data.seances && data.seances[idx];
+    if (!sc) return;
+    var note = editeurVersChamp("Notes", v.querySelector(".ed-rte"));
+    sc.champs = sc.champs || [];
+    var pos = -1;
+    sc.champs.forEach(function (f, k) { if (f.champ === "Notes") pos = k; });
+    if (pos >= 0) sc.champs[pos] = note; else sc.champs.push(note);
+    var ouvertes = Array.prototype.map.call(article.querySelectorAll("details.seance"), function (d) { return d.open; });
+    appliquer(article, data);
+    Array.prototype.forEach.call(article.querySelectorAll("details.seance"), function (d, k) { d.open = !!ouvertes[k]; });
+    mettreEnFile(article, data, jeton);
+  }
 
   function afficher(statut, texte, erreur) {
     statut.hidden = false;

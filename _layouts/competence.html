@@ -46,12 +46,12 @@ layout: default
       {%- if s.a_rediger -%}
       <div class="stile todo"><small>Séance {{ forloop.index }} · à rédiger</small>{{ s.titre }}</div>
       {%- else -%}
-      <details class="seance"{% if forloop.first %} open{% endif %}>
+      <details class="seance" data-seance="{{ forloop.index0 }}"{% if forloop.first %} open{% endif %}>
         <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}</summary>
         <div class="sdetail">
           {%- for f in s.champs %}{% unless f.champ == "Notes" %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endunless %}{% endfor %}
           {%- assign notes = s.champs | where: "champ", "Notes" | first -%}
-          <div class="row notes"><div class="k">Notes</div><div class="v">{% if notes and notes.texte.size > 0 or notes.notes %}{% include champ.html f=notes %}{% else %}<span class="vide">Aucune note</span>{% endif %}</div></div>
+          <div class="row notes"><div class="k"><span>Notes</span>{% include outils-edition.html label="les notes de la séance" prefixe="note-" classe="outils-note" %}</div><div class="v">{% if notes and notes.texte.size > 0 or notes.notes %}{% include champ.html f=notes %}{% else %}<span class="vide">Aucune note</span>{% endif %}</div></div>
         </div>
       </details>
       {%- endif -%}
