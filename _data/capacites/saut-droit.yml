@@ -1,0 +1,75 @@
+brouillon: saut-droit.pdf
+blanc:
+- champ: Objectif final
+  texte:
+  - Se mettre à l'eau en sécurité et suivant les instructions du GP et garder tout son matériel
+- champ: Position dans la formation
+  texte:
+  - milieu/fin
+- champ: Prérequis
+  texte:
+  - Materiel
+  - Palmage de sustentation
+  - gestion des oreilles
+  - remonté sur expi
+- champ: Critères d'évaluation
+  texte:
+  - Tout le materiel
+  - Verif avant le saut
+  - Signe au GP apres le saut
+  - la bouteille n'a pas touché le bord
+  notes:
+  - couleur: rouge
+    texte: SMART !!!!
+- champ: Organisation
+  texte:
+  - bord du bassin
+  - profondeur
+  - début de séance
+  - verif des blocs
+  - pas d'autre plongeur/nageurs
+  notes:
+  - couleur: rouge
+    texte: durée · un assistant ?
+fautes:
+  champ: Fautes classiques et correctifs
+  texte:
+  - gilet pas gonflet
+  - matériel non tenu
+  - détendeur pas en bouche
+seances:
+- titre: Saut droit
+  champs:
+  - champ: Objectif de séance
+    texte:
+    - Se mettre à l'eau avec son meteriel
+    notes:
+    - couleur: rouge
+      texte: distance mesuré dans l'eau, une planche
+  - champ: Justification
+    texte:
+    - Sortir du bateau
+    - plus confort que dans l'eau
+  - champ: Description des exercices
+    texte:
+    - presenter le geste sur le bord (decomposé les etapes -> gonfler légèrement le gilet, tenir masque detendeur gilet, regarder au loin, faire un grand pas)
+    - ex0 sans gilet hors de l'eau
+    - ex1 sans gilet -> verifier la longeur du pas, la reaction aux signes
+    - ex2 avec gilet -> idem sans toucher le bord
+  - champ: Points clés à donner aux élèves
+    texte:
+    - decomposition du geste
+    - mettre un peu d'air avant de sauter pour remonter
+    - verif secu + signale
+  - champ: Consignes de sécurité
+    texte:
+    - profondeur
+    - autre baigneurs
+    - bouteille ouverte avec de l'air dans le gilet
+  - champ: Communication spécifique
+    texte:
+    - mise à l'eau
+    - ok
+  - champ: Prochaine séance
+    texte:
+    - bascule arrière

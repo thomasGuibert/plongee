@@ -1,0 +1,9 @@
+{%- assign f = include.f -%}
+{%- if f.texte.size == 1 -%}
+<div>{{ f.texte[0] }}</div>
+{%- elsif f.texte.size > 1 -%}
+<ul class="plain">{% for t in f.texte %}<li>{{ t }}</li>{% endfor %}</ul>
+{%- endif -%}
+{%- for n in f.notes -%}
+<div class="note {{ n.couleur }}">{{ n.texte }}</div>
+{%- endfor -%}

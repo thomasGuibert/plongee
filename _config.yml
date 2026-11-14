@@ -11,3 +11,8 @@ exclude:
   - Gemfile.lock
   - vendor
   - sources
+
+collections:
+  competences:
+    output: true
+    permalink: /competences/:name/

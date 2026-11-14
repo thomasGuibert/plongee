@@ -1,0 +1,56 @@
+---
+layout: default
+---
+<div class="comp-page">
+<nav class="trail"><a href="{{ '/' | relative_url }}">Toutes les compétences</a> › {{ page.nom }}</nav>
+
+<section>
+  <div class="comp-head">
+    <div class="eyebrow">Compétence · objectif final</div>
+    <h1>{{ page.nom }}</h1>
+    <p>{{ page.attendu }}</p>
+  </div>
+  <div class="savoirs">
+    <div><h2>Savoir-faire · technique</h2><p>{{ page.savoir_faire }}</p></div>
+    <div><h2>Savoir-être · comportement</h2><p>{{ page.savoir_etre }}</p></div>
+    <div><h2>Savoir · théorie</h2><p>{{ page.savoir }}</p></div>
+  </div>
+</section>
+
+<div class="capas">
+{%- for c in page.capacites -%}
+  {%- assign d = site.data.capacites[c.id] -%}
+  {%- if d -%}
+  <article class="capa" id="{{ c.id }}">
+    <div class="capa-top">
+      <div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div>
+      <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a></span>
+    </div>
+    {%- if d.rattachement %}<p class="comment">{{ d.rattachement }}</p>{% endif %}
+    <dl>
+      {%- for f in d.blanc %}<dt>{{ f.champ }}</dt><dd>{% include champ.html f=f %}</dd>{% endfor %}
+      {%- if d.fautes %}<dt>{{ d.fautes.champ }}</dt><dd>{% include champ.html f=d.fautes %}</dd>{% endif %}
+    </dl>
+    <div class="seances">
+    {%- for s in d.seances -%}
+      {%- if s.a_rediger -%}
+      <div class="stile todo"><small>Séance {{ forloop.index }} · à rédiger</small>{{ s.titre }}</div>
+      {%- else -%}
+      <details class="seance"{% if forloop.first %} open{% endif %}>
+        <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}</summary>
+        <div class="sdetail">
+          {%- for f in s.champs %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endfor %}
+        </div>
+      </details>
+      {%- endif -%}
+    {%- endfor -%}
+    </div>
+  </article>
+  {%- else -%}
+  <article class="capa empty" id="{{ c.id }}">
+    <div class="capa-top"><h3>{{ c.nom }}</h3><span class="pill todo">aucune séance</span></div>
+  </article>
+  {%- endif -%}
+{%- endfor -%}
+</div>
+</div>

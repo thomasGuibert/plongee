@@ -1,0 +1,56 @@
+brouillon: gilet-presentation.pdf
+rattachement: 'Rattachement à confirmer : ce brouillon pourrait aussi aller sous « S''équiper et se déséquiper ».'
+blanc:
+- champ: Objectif final
+  texte:
+  - Connait/peut nommer et expliquer les diffèrent éléments d'un gilet
+- champ: Position dans la formation
+  texte:
+  - Debut
+- champ: Prérequis
+  texte:
+  - N/A
+  notes:
+  - couleur: rouge
+    texte: différente taille de gilet · forme · types/attaches · différence avec la combi
+- champ: Critères d'évaluation
+  texte:
+  - Citer les éléments (purges, inflateur, sangles)
+  - justifier l'usage (stabilisation, surface, aisance...)
+- champ: Organisation
+  texte:
+  - Bord du bassin
+  - Gilet / bouteille / détendeur pour le flexible du direct system
+  - 5 minutes
+  - tablette stylo dessin de poumon balaste
+fautes:
+  champ: Fautes classiques et correctifs
+  texte:
+  - pression sur l'inflateur
+seances:
+- titre: Présentation du gilet
+  champs:
+  - champ: Objectif de séance
+    texte:
+    - Connait/peut nommer et expliquer les diffèrent éléments d'un gilet et l'usage de ce dernier ainsi que choisir la bonne stab pourquoi et quand
+  - champ: Justification
+    texte:
+    - gestion de la stabilisation dans l'eau + rester en surface sans se fatiguer)
+  - champ: Description des exercices
+    texte:
+    - gonfler via l'inflateur
+    - purger via l'inflateur vres ke haut vers le bas
+    - utilisation des purges rapide
+    - présentation des sangles
+  - champ: Points clés à donner aux élèves
+    texte:
+    - inflateur
+  - champ: Consignes de sécurité
+    texte:
+    - N/A
+  - champ: Communication spécifique
+    texte:
+    - N/A
+  - champ: Prochaine séance
+    texte:
+    - Mise à l'eau

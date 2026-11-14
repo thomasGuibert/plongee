@@ -7,3 +7,50 @@ layout: default
   <p class="lead">Ce site rassemble les cours que je prépare en tant qu'initiateur pour les plongeurs Niveau 1 et Niveau 2.
   Il est en cours de construction : le contenu arrivera au fil des séances.</p>
 </section>
+
+<section>
+<p class="eyebrow">Niveau 1 · PE20</p>
+<h2 class="section-title">Compétences du Niveau 1</h2>
+<p class="lead">Chaque compétence regroupe des capacités, et chaque capacité se travaille en une ou plusieurs séances. Une compétence est validée quand son savoir-faire, son savoir-être et son savoir sont acquis.</p>
+<div class="legend">
+  <span><i class="dot"></i>séance rédigée</span>
+  <span><i class="dot todo"></i>séance annoncée, à rédiger</span>
+</div>
+
+{%- assign comps = site.competences | sort: "ordre" %}
+<div class="board">
+{%- for c in comps -%}
+  {%- assign avec = 0 -%}
+  {%- for capa in c.capacites -%}{%- if site.data.capacites[capa.id] -%}{%- assign avec = avec | plus: 1 -%}{%- endif -%}{%- endfor -%}
+  {%- assign pct = avec | times: 100 | divided_by: c.capacites.size -%}
+  <section class="lane{% if avec == 0 %} dim{% endif %}">
+    <a class="lane-head" href="{{ c.url | relative_url }}">
+      <span class="eyebrow">Compétence</span>
+      <h2>{{ c.nom }}</h2>
+    </a>
+    <div class="trio">
+      <div><b>Savoir-faire</b>{{ c.capacites.size }} capacité{% if c.capacites.size > 1 %}s{% endif %}</div>
+      <div><b>Savoir-être</b>comportement</div>
+      <div><b>Savoir</b>théorie</div>
+    </div>
+    <div class="meter" title="{{ avec }} capacité(s) avec au moins une séance"><i style="width:{{ pct }}%"></i></div>
+    {%- for capa in c.capacites -%}
+      {%- assign d = site.data.capacites[capa.id] -%}
+      <a class="crow" href="{{ c.url | relative_url }}#{{ capa.id }}">
+        <span>{{ capa.nom }}
+          {%- if d -%}
+            {%- assign s0 = d.seances | first -%}
+            {%- assign p = s0.champs | where: "champ", "Prochaine séance" | first -%}
+            {%- if p %}<span class="next">ensuite : <b>{{ p.texte[0] }}</b></span>{% endif -%}
+          {%- endif -%}
+        </span>
+        <span class="dots">
+          {%- if d -%}{%- for s in d.seances -%}<i class="dot{% if s.a_rediger %} todo{% endif %}" title="{{ s.titre }}">S{{ forloop.index }}</i>{%- endfor -%}
+          {%- else -%}<i class="dot none">—</i>{%- endif -%}
+        </span>
+      </a>
+    {%- endfor -%}
+  </section>
+{%- endfor -%}
+</div>
+</section>

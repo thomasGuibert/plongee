@@ -1,0 +1,82 @@
+brouillon: vidage-de-masque.pdf
+blanc:
+- champ: Objectif final
+  texte:
+  - Vider son masque dans toutes les circonstances de façon naturelle (sans stress, sur demande, statique ou en déplacement)
+  notes:
+  - couleur: rouge
+    texte: complet · en sustentation
+  - couleur: vert
+    texte: 'décroitre le critère : sans masque, 3 respi, en mouvement, variation d''1m'
+- champ: Position dans la formation
+  texte:
+  - Début
+- champ: Prérequis
+  texte:
+  - Dissociation buco nasale
+- champ: Critères d'évaluation
+  texte:
+  - Respiration calme
+  - Vidage complet
+  - statique et en mouvement
+  - de 0 à 6m
+  - Sur demande
+  notes:
+  - couleur: rouge
+    texte: Chiffré
+- champ: Organisation
+  texte:
+  - Piscine fond sans profondeur
+  - puis avec profondeur
+fautes:
+  champ: Fautes classiques et correctifs
+  texte: []
+  notes:
+  - couleur: rouge
+    texte: trop d'eau · pas assez en arrière · pression non centré
+seances:
+- titre: Vidage partiel en statique
+  champs:
+  - champ: Objectif de séance
+    texte:
+    - Vidage partiel du masque en statique
+  - champ: Justification
+    texte:
+    - Ne pas être gêné par de l'eau dans le nez
+    - retiré la buée
+  - champ: Description des exercices
+    texte:
+    - Statique à 1m
+    - <s>Statique à 5m</s>
+    notes:
+    - couleur: rouge
+      texte: présenter le geste
+    - couleur: vert
+      texte: sous le nez x2 · juste sous les yeux x1
+  - champ: Points clés à donner aux élèves
+    texte:
+    - respirer par la bouche et souffler par le nez
+    - lever la tête
+    - tenir le haut du masque (la jupe du masque doit être etanche)
+    notes:
+    - couleur: rouge
+      texte: montrer comment remplir légèrement le masque
+  - champ: Consignes de sécurité
+    texte: []
+    notes:
+    - couleur: rouge
+      texte: limiter le nombre · pas de profondeur
+  - champ: Communication spécifique
+    texte:
+    - ok - pas ok - regarde moi
+    - remplir le masque
+    - souffler
+    - niveau d'eau
+    notes:
+    - couleur: rouge
+      texte: à toi
+  - champ: Prochaine séance
+    texte:
+    - Vidage de masque complet
+- titre: Vidage de masque complet
+  a_rediger: true
