@@ -10,9 +10,7 @@ blanc:
   - champ: "Prérequis"
     texte:
       - "N/<span class=\"c-vert\">A</span>"
-    notes:
-      - couleur: "rouge"
-        texte: "différente taille de gilet · forme · types/attaches · différence avec la combi"
+      - "<span class=\"c-rouge\">différente taille de gilet · forme · types/attaches · différence avec la combi</span>"
   - champ: "Critères d'évaluation"
     texte:
       - "Citer les éléments (purges, inflateur, sangles)"
