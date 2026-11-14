@@ -10,8 +10,8 @@ blanc:
     texte:
       - "Materiel"
       - "Palmage de sustentation"
-      - "gestion des oreilles"
-      - "remonté sur expi"
+      - "Gestion des oreilles"
+      - "Remontée sur expiration"
   - champ: "Critères d'évaluation"
     texte:
       - "Tout le materiel"
