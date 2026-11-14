@@ -28,12 +28,18 @@ layout: default
       <span class="eyebrow">Compétence</span>
       <h2>{{ c.nom }}</h2>
     </a>
-    <div class="trio">
-      <div><b>Savoir-faire</b>{{ c.capacites.size }} capacité{% if c.capacites.size > 1 %}s{% endif %}</div>
-      <div><b>Savoir-être</b>comportement</div>
-      <div><b>Savoir</b>théorie</div>
-    </div>
     <div class="meter" title="{{ avec }} capacité(s) avec au moins une séance"><i style="width:{{ pct }}%"></i></div>
+    <details class="lane-acc">
+      <summary>Savoir-faire, savoir-être, savoir</summary>
+      <dl class="lane-savoirs">
+        <dt>Savoir-faire</dt><dd>{{ c.savoir_faire }}</dd>
+        <dt>Savoir-être</dt><dd>{{ c.savoir_etre }}</dd>
+        <dt>Savoir</dt><dd>{{ c.savoir }}</dd>
+      </dl>
+    </details>
+    <details class="lane-acc lane-capas" open>
+      <summary>{{ c.capacites.size }} capacité{% if c.capacites.size > 1 %}s{% endif %} · {{ avec }} avec séance{% if avec > 1 %}s{% endif %}</summary>
+      <div>
     {%- for capa in c.capacites -%}
       {%- assign d = site.data.capacites[capa.id] -%}
       <a class="crow" href="{{ c.url | relative_url }}#{{ capa.id }}">
@@ -50,7 +56,15 @@ layout: default
         </span>
       </a>
     {%- endfor -%}
+      </div>
+    </details>
   </section>
 {%- endfor -%}
 </div>
 </section>
+<script>
+  // Sur mobile, la liste des capacités de chaque compétence est repliée au chargement.
+  if (window.matchMedia("(max-width: 720px)").matches) {
+    document.querySelectorAll(".lane-capas").forEach(function (d) { d.open = false; });
+  }
+</script>
