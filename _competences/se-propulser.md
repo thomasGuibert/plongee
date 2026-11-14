@@ -6,6 +6,8 @@ savoir_faire: 'Maîtrise des différentes techniques de palmage : palmage de sur
 savoir_etre: Le plongeur maîtrise la gestion de son effort, il a le souci de l'unité de la palanquée (entraide et cohésion). Il se maintient à proximité du GP en respectant la profondeur et les consignes données.
 savoir: La notion d'appui de la surface de la palme et le principe du bras de levier doivent venir en soutien dans les explications du geste technique. Présentation des différents types de palmes. Prévention de l'essoufflement, gestion de la consommation.
 source: "Manuel « Plongeur Niveau 1 – PE20 » (FFESSM, version décembre 2025), page 7"
+source_pdf: "PlongeurNiveau1-PE20.pdf"
+source_page: 7
 capacites:
 - nom: Palmage ventral en surface
   id: palmage-ventral

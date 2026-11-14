@@ -6,6 +6,8 @@ savoir_faire: Gréage et dégréage de son équipement (bouteille, gilet stabili
 savoir_etre: Le plongeur est autonome dans la mise en œuvre et l'utilisation du matériel. Il respecte les consignes de sécurité. Il développe les notions de palanquée, d'entraide et de solidarité entre les plongeurs.
 savoir: Prévention des accidents liés aux chutes de la bouteille et des équipements sous pression. Connaissance des règles d'entretien et d'hygiène du matériel (signalement d'un dysfonctionnement, rinçage, désinfection, ...). Notions de flottabilité en rapport avec le lestage.
 source: "Manuel « Plongeur Niveau 1 – PE20 » (FFESSM, version décembre 2025), page 4"
+source_pdf: "PlongeurNiveau1-PE20.pdf"
+source_page: 4
 capacites:
 - nom: Gréage et dégréage
   id: greage-degreage

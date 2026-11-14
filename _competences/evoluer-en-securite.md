@@ -6,6 +6,8 @@ savoir_faire: 'Application des procédures mises en œuvre par le GP (réserve, 
 savoir_etre: Le plongeur sait réagir aux différentes situations. Il exécute la procédure demandée sans hésitation, de manière automatique et sans erreur. Il accepte la procédure du guide de palanquée calmement. Il interprète le signe correctement, l'action est immédiate.
 savoir: 'Protocoles et procédures : codes de communication et réponses possibles dans le cadre de procédures normales et anormales. Règle en cas de perte de palanquée.'
 source: "Manuel « Plongeur Niveau 1 – PE20 » (FFESSM, version décembre 2025), page 13"
+source_pdf: "PlongeurNiveau1-PE20.pdf"
+source_page: 13
 capacites:
 - nom: Application des procédures mises en œuvre par le GP
   id: procedures-gp

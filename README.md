@@ -8,6 +8,7 @@ Site Jekyll publié avec GitHub Pages : <https://thomasguibert.github.io/plongee
 - `_data/capacites/<id>.yml` : les séances d'une capacité, sur la trame de la fiche pédagogique Codep. `blanc` = partie capacité, `seances` = une entrée par séance (partie jaune). `a_rediger: true` pour une séance seulement annoncée. `notes` (rouge / vert) = annotations. Les textes peuvent contenir `<b>`, `<i>`, `<s>` et `<span class="c-rouge|c-vert|c-bleu|c-orange">` (mise en forme faite depuis l'éditeur du site).
 - `brouillons/` : PDF des brouillons de séances.
 - `sources/` : documents de référence, non publiés.
+- `documents/` : documents de référence publiés sur le site (manuel PE20). Une compétence y renvoie avec `source_pdf` et `source_page`.
 
 L'accueil affiche la carte de progression ; un clic sur une compétence ouvre sa page.
 

@@ -351,3 +351,7 @@ details[open] > .stile small { color: var(--on-yellow); }
 .lane.restauree { border-style: dashed; border-color: var(--accent); }
 .bandeau-corbeille { margin: 0; padding: 10px 14px; border-radius: 8px; border: 2px dashed var(--muted); color: var(--ink); font-size: 14px; }
 @media (prefers-reduced-motion: reduce) { .corbeille > summary::before { transition: none; } }
+
+/* Liens vers les PDF d'une compétence */
+.documents { display: flex; flex-direction: column; gap: 2px; }
+.type-doc { font-family: var(--f-mono); font-size: 10.5px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); }

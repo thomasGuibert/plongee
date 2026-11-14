@@ -6,6 +6,8 @@ savoir_faire: 'Maîtrise des deux techniques du phoque et du canard en scaphandr
 savoir_etre: Le plongeur adopte un comportement adapté à la demande du GP et dans le respect de ses consignes.
 savoir: Prévention des barotraumatismes de l'oreille, des sinus et du plaquage de masque. Flottabilité en lien avec la ventilation et le poumon ballast.
 source: "Manuel « Plongeur Niveau 1 – PE20 » (FFESSM, version décembre 2025), page 6"
+source_pdf: "PlongeurNiveau1-PE20.pdf"
+source_page: 6
 capacites:
 - nom: Canard
   id: canard

@@ -6,6 +6,8 @@ savoir_faire: Maîtrise et régulation de la ventilation en immersion. Ventilati
 savoir_etre: Le plongeur adapte son rythme ventilatoire, il maîtrise sa ventilation et la maintient dans la zone de confort, il s'autocontrôle par des apnées de contrôle. Le plongeur vide son masque sans stress dans des situations variées. Il maîtrise sa ventilation dans la phase de remontée en prévention des barotraumatismes.
 savoir: 'Prévention des accidents : notions simples de physique pour expliquer les barotraumatismes de l''oreille et leur prévention (Valsalva, BTV, Frenzel), des sinus et du placage de masque. Prévention de la noyade. Consommation : notions simples de physique pour expliquer la consommation en air et sa répercussion sur la flottabilité.'
 source: "Manuel « Plongeur Niveau 1 – PE20 » (FFESSM, version décembre 2025), page 8"
+source_pdf: "PlongeurNiveau1-PE20.pdf"
+source_page: 8
 capacites:
 - nom: Ventilation en immersion
   id: ventilation-immersion

@@ -6,7 +6,7 @@ layout: default
 
 {%- if page.corbeille %}<p class="bandeau-corbeille">Cette compétence est dans la corbeille : elle n'apparaît plus dans le tableau de l'accueil. Vous pouvez la restaurer depuis la corbeille, en bas de l'accueil.</p>{% endif %}
 <section class="bloc-edit bloc-competence" data-type="competence" data-chemin="{{ page.path }}">
-  <script type="application/json" class="bloc-data">{"ordre": {{ page.ordre | jsonify }}, "nom": {{ page.nom | jsonify }}, "attendu": {{ page.attendu | jsonify }}, "savoir_faire": {{ page.savoir_faire | jsonify }}, "savoir_etre": {{ page.savoir_etre | jsonify }}, "savoir": {{ page.savoir | jsonify }}, "source": {{ page.source | jsonify }}, "capacites": {% if page.capacites %}{{ page.capacites | jsonify }}{% else %}[]{% endif %}, "layout": "competence", "title": {{ page.title | jsonify }}{% if page.corbeille %}, "corbeille": true{% endif %}}</script>
+  <script type="application/json" class="bloc-data">{"ordre": {{ page.ordre | jsonify }}, "nom": {{ page.nom | jsonify }}, "attendu": {{ page.attendu | jsonify }}, "savoir_faire": {{ page.savoir_faire | jsonify }}, "savoir_etre": {{ page.savoir_etre | jsonify }}, "savoir": {{ page.savoir | jsonify }}, "source": {{ page.source | jsonify }}, {% if page.source_pdf %}"source_pdf": {{ page.source_pdf | jsonify }}, "source_page": {{ page.source_page | jsonify }}, {% endif %}"capacites": {% if page.capacites %}{{ page.capacites | jsonify }}{% else %}[]{% endif %}, "layout": "competence", "title": {{ page.title | jsonify }}{% if page.corbeille %}, "corbeille": true{% endif %}}</script>
   <div class="bloc-top">{% include outils-edition.html label=page.nom classe="sur-fonce" %}</div>
   <div class="bloc-corps">
   <div class="comp-head">
@@ -19,7 +19,14 @@ layout: default
     <details open><summary>Savoir-être · comportement</summary><p data-bloc-champ="savoir_etre">{{ page.savoir_etre }}</p></details>
     <details open><summary>Savoir · théorie</summary><p data-bloc-champ="savoir">{{ page.savoir }}</p></details>
   </div>
-  {%- if page.source %}<p class="source">Source : {{ page.source }}</p>{% endif %}
+  {%- assign brouillons = "" | split: "" -%}
+  {%- for c in page.capacites -%}{%- assign d = site.data.capacites[c.id] -%}{%- if d.brouillon -%}{%- assign brouillons = brouillons | push: c -%}{%- endif -%}{%- endfor -%}
+  {%- if page.source or brouillons.size > 0 %}
+  <div class="documents">
+    {%- if page.source %}<p class="source">Source : {% if page.source_pdf %}<a href="{{ '/documents/' | append: page.source_pdf | relative_url }}{% if page.source_page %}#page={{ page.source_page }}{% endif %}" target="_blank" rel="noopener">{{ page.source }}</a> <span class="type-doc">PDF</span>{% else %}{{ page.source }}{% endif %}</p>{% endif %}
+    {%- if brouillons.size > 0 %}<p class="source">Brouillons de séance : {% for c in brouillons %}{% assign d = site.data.capacites[c.id] %}<a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}" target="_blank" rel="noopener">{{ c.nom }}</a> <span class="type-doc">PDF</span>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>{% endif %}
+  </div>
+  {%- endif %}
   </div>
 </section>
 
