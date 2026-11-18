@@ -1082,7 +1082,82 @@
     var t = (e.clipboardData || window.clipboardData).getData("text/plain");
     document.execCommand("insertText", false, t);
   });
+  // ---- Ancres : chaque section a une adresse, et un bouton pour copier son lien ----
+  var SVG_LIEN = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>';
+  function boutonLien(id, quoi) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "lien-ancre"; b.dataset.ancre = id;
+    b.title = "Copier le lien vers " + quoi; b.setAttribute("aria-label", "Copier le lien vers " + quoi);
+    b.innerHTML = SVG_LIEN;
+    return b;
+  }
+  function poser(el, id, ou, quoi, position) {
+    if (!el || !ou) return;
+    el.id = id;
+    var b = ou.querySelector(":scope > .lien-ancre");
+    if (b) { b.dataset.ancre = id; return; }
+    b = boutonLien(id, quoi);
+    if (position === "debut") ou.insertBefore(b, ou.firstChild); else ou.appendChild(b);
+  }
+  function poserAncres() {
+    var comp = document.querySelector(".bloc-competence");
+    if (comp) poser(comp.querySelector(".comp-head"), "objectif", comp.querySelector(".bloc-top"), "la compétence", "debut");
+    var noms = ["savoir-faire", "savoir-etre", "savoir"];
+    Array.prototype.forEach.call(document.querySelectorAll(".savoirs-acc > details"), function (d, i) {
+      poser(d, noms[i] || "savoir-" + i, d.querySelector("summary"), "ce savoir");
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".capas > .capa[data-id]"), function (a) {
+      var act = a.querySelector(".capa-actions");
+      if (act && !act.querySelector(":scope > .lien-ancre")) act.insertBefore(boutonLien(a.id, "la technique"), act.firstChild);
+      var pris = {};
+      Array.prototype.forEach.call(a.querySelectorAll(".seances > .seance, .seances > .stile.todo"), function (t, i) {
+        var titre = t.matches("details") ? t.querySelector("summary").childNodes[1] : t.childNodes[1];
+        var base = a.dataset.id + "--" + (slug(titre && titre.textContent ? titre.textContent : "seance-" + (i + 1)) || "seance-" + (i + 1)), id = base, n = 2;
+        while (pris[id]) id = base + "-" + (n++);
+        pris[id] = true;
+        poser(t, id, t.querySelector(".ordre"), "la séance", "debut");
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".board > .lane[data-chemin]"), function (l) {
+      var id = "competence-" + l.dataset.chemin.replace(/^.*\//, "").replace(/\.md$/, "");
+      poser(l, id, l.querySelector(".lane-top"), "la carte de cette compétence");
+    });
+  }
+  function allerAncre() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    var el = document.getElementById(id);
+    if (!el) return;
+    for (var p = el; p; p = p.parentElement) if (p.tagName === "DETAILS") p.open = true;
+    el.scrollIntoView({ block: "start" });
+    el.classList.add("ancre-visee");
+    setTimeout(function () { el.classList.remove("ancre-visee"); }, 2500);
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".lien-ancre");
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    var url = location.origin + location.pathname + "#" + b.dataset.ancre;
+    try { history.replaceState(null, "", "#" + b.dataset.ancre); } catch (x) {}
+    var fini = function (ok) {
+      b.classList.add("copie");
+      b.setAttribute("data-msg", ok ? "Lien copié" : "Lien dans la barre d'adresse");
+      setTimeout(function () { b.classList.remove("copie"); }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { fini(true); }, function () { fini(false); });
+    else fini(false);
+  }, true);
+  var attente = false;
+  new MutationObserver(function () {
+    if (attente) return;
+    attente = true;
+    requestAnimationFrame(function () { attente = false; poserAncres(); });
+  }).observe(document.querySelector("main") || document.body, { childList: true, subtree: true });
+  window.addEventListener("hashchange", allerAncre);
+
   reprendreBlocs();
   reprendre();
   reprendreAccueil();
+  poserAncres();
+  if (location.hash !== "#nouvelle-technique") allerAncre();
 })();
