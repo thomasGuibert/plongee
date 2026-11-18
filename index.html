@@ -70,19 +70,11 @@ layout: default
         </span>
       </a>
     {%- endfor -%}
+      <a class="crow-ajout" href="{{ c.url | relative_url }}#nouvelle-technique">+ Nouvelle technique</a>
       </div>
     </details>
   </section>
 {%- endfor -%}
-  <section class="lane lane-nouvelle">
-    <button type="button" class="nouvelle-comp" data-action="nouvelle-comp"><span aria-hidden="true">+</span> Nouvelle compétence</button>
-    <form class="nouvelle-comp-form" hidden>
-      <label for="nc-nom">Nom de la nouvelle compétence</label>
-      <input id="nc-nom" required placeholder="Ex. : Se ventiler">
-      <div class="ed-actions"><button type="submit" class="btn-primaire">Créer</button><button type="button" class="btn-lien" data-action="annuler-comp">Annuler</button></div>
-      <p class="ed-aide">La page de la compétence sera en ligne une à deux minutes après sa création. Vous y ajouterez ensuite son objectif, ses savoirs et ses capacités avec le stylo.</p>
-    </form>
-  </section>
 </div>
 
 <details class="corbeille">

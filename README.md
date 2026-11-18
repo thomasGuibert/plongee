@@ -16,7 +16,7 @@ L'accueil affiche la carte de progression ; un clic sur une compétence ouvre sa
 
 Sur la page d'une compétence, le crayon en haut à droite d'une capacité ouvre l'édition (nom, bloc blanc et séances, avec une zone « Notes » en fin de séance) ; ✓ enregistre, ✗ annule. L'enregistrement écrit `_data/capacites/<id>.yml` sur `main` via l'API GitHub, avec un jeton personnel « fine-grained » (dépôt `plongee`, permission *Contents : Read and write*) conservé dans le navigateur. Le site se met à jour une à deux minutes plus tard. Les commits faits depuis le site arrivent sur `main` : faire un `git pull --rebase` avant de travailler en local.
 
-Le crayon de l'en-tête d'une compétence modifie son nom, son objectif, ses trois savoirs et sa liste de capacités (`_competences/<nom>.md`). Celui de l'accueil modifie les textes d'introduction (`_data/accueil.yml`). Sur l'accueil, « + Nouvelle compétence » crée `_competences/<nom>.md` et la corbeille d'une carte ajoute `corbeille: true` à ce fichier : la compétence passe dans la « Corbeille » repliée en bas de l'accueil, d'où « Restaurer » retire ce champ. Rien n'est effacé.
+Le crayon de l'en-tête d'une compétence modifie son nom, son objectif, ses trois savoirs et sa liste de capacités (`_competences/<nom>.md`). Celui de l'accueil modifie les textes d'introduction (`_data/accueil.yml`). Sur la page d'une compétence, « + Nouvelle technique » ajoute une capacité à sa liste (raccourci depuis chaque carte de l'accueil). Sur l'accueil, la corbeille d'une carte ajoute `corbeille: true` à ce fichier : la compétence passe dans la « Corbeille » repliée en bas de l'accueil, d'où « Restaurer » retire ce champ. Rien n'est effacé.
 
 ## Voir le site en local
 

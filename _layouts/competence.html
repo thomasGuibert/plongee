@@ -76,6 +76,15 @@ layout: default
   {%- endif -%}
 {%- endfor -%}
 </div>
+<section class="nouvelle-capa-zone" id="nouvelle-technique">
+  <button type="button" class="nouvelle-capa" data-action="nouvelle-capa"><span aria-hidden="true">+</span> Nouvelle technique</button>
+  <form class="nouvelle-capa-form" hidden>
+    <label for="ncapa-nom">Nom de la nouvelle technique (capacité)</label>
+    <input id="ncapa-nom" required placeholder="Ex. : Nage en capelé">
+    <div class="ed-actions"><button type="submit" class="btn-primaire">Ajouter</button><button type="button" class="btn-lien" data-action="annuler-capa">Annuler</button></div>
+    <p class="ed-aide">La technique s'ajoute à cette compétence. Vous pourrez ensuite remplir son bloc blanc et créer ses séances.</p>
+  </form>
+</section>
 </div>
 
 <template id="modele-capa">

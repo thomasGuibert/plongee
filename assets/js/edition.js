@@ -346,7 +346,7 @@
       e = document.createElement("p");
       e.className = "ed-etat";
       e.setAttribute("role", "status");
-      (article.querySelector(".capa-top, .bloc-top") || article.firstElementChild).insertAdjacentElement("afterend", e);
+      (article.querySelector(".capa-top") || article.querySelector(".bloc-corps") || article.firstElementChild).insertAdjacentElement("afterend", e);
     }
     e.className = "ed-etat " + quoi;
     e.hidden = false;
@@ -421,6 +421,8 @@
     var b = e.target.closest("[data-action]");
     if (!b) return;
     if (b.closest(".board, .corbeille")) { actionAccueil(b); return; }
+    var zc = zoneCapa(b);
+    if (zc) { actionNouvelleCapa(zc, b); return; }
     var bloc = b.closest(".bloc-edit");
     if (bloc) { actionBloc(bloc, b); return; }
     var article = b.closest(".capa");
@@ -727,6 +729,49 @@
       if (v) envoyerBloc(bloc, v.data, j);
     }
   }
+  // ---- Page compétence : ajouter une technique (capacité) ----
+  function zoneCapa(b) { return b.closest(".nouvelle-capa-zone"); }
+  function ouvrirNouvelleCapa(zone) {
+    zone.querySelector(".nouvelle-capa").hidden = true;
+    zone.querySelector(".nouvelle-capa-form").hidden = false;
+    zone.querySelector("#ncapa-nom").focus();
+  }
+  function actionNouvelleCapa(zone, b) {
+    if (b.dataset.action === "nouvelle-capa") ouvrirNouvelleCapa(zone);
+    else if (b.dataset.action === "annuler-capa") {
+      zone.querySelector(".nouvelle-capa-form").hidden = true;
+      zone.querySelector(".nouvelle-capa").hidden = false;
+    }
+  }
+  document.addEventListener("submit", function (e) {
+    var form = e.target.closest(".nouvelle-capa-form");
+    if (!form) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    var nom = form.querySelector("#ncapa-nom").value.trim();
+    var bloc = competenceBloc();
+    if (!nom || !bloc) return;
+    var j = jetonCarte(form);
+    if (!j) return;
+    var d = blocDonnees(bloc);
+    d.capacites = d.capacites || [];
+    var base = slug(nom) || "technique", id = base, n = 2;
+    var pris = function (x) { return document.getElementById(x) || d.capacites.some(function (c) { return c.id === x; }); };
+    while (pris(id)) id = base + "-" + (n++);
+    d.capacites.push({ nom: nom, id: id });
+    afficherBloc(bloc, d);
+    envoyerBloc(bloc, d, j);
+    form.reset(); form.hidden = true;
+    var champ = form.querySelector(".ed-jeton"); if (champ) champ.remove();
+    form.parentNode.querySelector(".nouvelle-capa").hidden = false;
+    var a = document.getElementById(id);
+    if (a) { a.scrollIntoView({ block: "center", behavior: "smooth" }); a.classList.add("ajoutee"); }
+  }, true);
+  if (location.hash === "#nouvelle-technique") {
+    var zn = document.querySelector(".nouvelle-capa-zone");
+    if (zn) ouvrirNouvelleCapa(zn);
+  }
+
   function reprendreBlocs() {
     Array.prototype.forEach.call(document.querySelectorAll(".bloc-edit[data-chemin]"), function (bloc) {
       var v = lireTampon(bloc.dataset.chemin);
@@ -784,8 +829,8 @@
     div.dataset.chemin = op.chemin; div.dataset.op = op.t;
     div.innerHTML = '<div class="lane-top"><a class="lane-head" href="' + esc(CFG.base + "competences/" + op.slug + "/") + '"><span class="eyebrow">Compétence</span><h2>' + esc(op.nom) + "</h2></a></div>" +
       '<p class="next">Aucune capacité pour l\'instant.</p>';
-    var nouvelle = document.querySelector(".lane-nouvelle");
-    nouvelle.parentNode.insertBefore(div, nouvelle);
+    var board = document.querySelector(".board");
+    if (board) board.appendChild(div);
     return div;
   }
   function majCorbeille() {
@@ -808,8 +853,8 @@
     div.className = "lane dim restauree";
     div.dataset.chemin = li.dataset.chemin; div.dataset.nom = li.dataset.nom; div.dataset.ordre = li.dataset.ordre;
     div.innerHTML = '<div class="lane-top"><a class="lane-head" href="' + esc(li.querySelector("a").getAttribute("href")) + '"><span class="eyebrow">Compétence</span><h2>' + esc(li.dataset.nom) + "</h2></a></div>";
-    var nouvelle = document.querySelector(".lane-nouvelle");
-    nouvelle.parentNode.insertBefore(div, nouvelle);
+    var board = document.querySelector(".board");
+    if (board) board.appendChild(div);
     li.remove();
     majCorbeille();
     return div;
