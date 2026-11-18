@@ -11,10 +11,10 @@ source_page: 8
 capacites:
   - nom: "Ventilation en immersion"
     id: "ventilation-immersion"
-  - nom: "Ventilation sur tuba et vidage du tuba"
-    id: "ventilation-tuba"
   - nom: "Apnée"
     id: "apnee"
+  - nom: "Ventilation sur tuba et vidage du tuba"
+    id: "ventilation-tuba"
   - nom: "Vidage du masque"
     id: "vidage-du-masque"
   - nom: "Lâcher et reprise d'embout"
