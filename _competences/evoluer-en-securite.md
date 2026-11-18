@@ -13,8 +13,6 @@ capacites:
     id: "procedures-gp"
   - nom: "Intervention en relais"
     id: "intervention-relais"
-  - nom: "Apnée"
-    id: "apnee"
 layout: "competence"
 title: "Évoluer en sécurité"
 ---
