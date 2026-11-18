@@ -1,0 +1,55 @@
+blanc:
+  - champ: "Objectif final"
+    texte:
+      - "Se déplacer sur 10m en apnée sans s'essouffler"
+  - champ: "Position dans la formation"
+    texte:
+      - "Début"
+  - champ: "Prérequis"
+    texte:
+      - "Nager"
+  - champ: "Critères d'évaluation"
+    texte:
+      - "Apnée 1 minutes en statique"
+      - "Apnée sur 10 mètres"
+      - "Pas d'essoufflement"
+  - champ: "Organisation"
+    texte:
+      - "Bord de la piscine"
+      - "Pas de profondeur"
+seances:
+  - titre: "Apnée sur inspiration"
+    champs:
+      - champ: "Objectif de séance"
+        texte:
+          - "Se déplacer sur 10m en apnée sans s'essouffler"
+      - champ: "Justification"
+        texte:
+          - "LRE"
+          - "Panne d'air pour rejoindre son binôme"
+      - champ: "Description des exercices"
+        texte:
+          - "Ex1: Apnée statique sur inspiration 20sec"
+          - "Ex2: Apnée statique sur inspiration 1min"
+          - "Ex3: Apnée dynamique sur 10m"
+      - champ: "Points clés à donner aux élèves"
+        texte:
+          - "Vider tout le CO2"
+          - "Ne pas être essoufflé"
+      - champ: "Consignes de sécurité"
+        texte:
+          - "Se tenir au bord"
+          - "Avoir pied"
+      - champ: "Communication spécifique"
+        texte:
+          - "N/A"
+      - champ: "Prochaine séance"
+        texte:
+          - "Apnée sur expiration puis LRE"
+      - champ: "Notes"
+        texte: []
+fautes:
+  champ: "Fautes classiques et correctifs"
+  texte:
+    - "Commencer une apnée essoufflé: verif avec apnée de 3s"
+    - "Se dépêcher de faire les 10 mètres et terminer essoufflé"
