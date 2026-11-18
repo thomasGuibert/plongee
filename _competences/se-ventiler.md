@@ -15,10 +15,10 @@ capacites:
     id: "ventilation-tuba"
   - nom: "Vidage du masque"
     id: "vidage-du-masque"
-  - nom: "Lâcher et reprise d'embout"
-    id: "lacher-reprise-embout"
   - nom: "Apnée"
     id: "apnee"
+  - nom: "Lâcher et reprise d'embout"
+    id: "lacher-reprise-embout"
 layout: "competence"
 title: "Se ventiler"
 ---
