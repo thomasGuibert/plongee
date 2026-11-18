@@ -39,6 +39,7 @@ layout: default
     <div class="capa-top">
       <div class="capa-titre"><div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div></div>
       <span class="capa-actions">
+        {% include ordre.html quoi="la technique" %}
         <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %}{% if d.brouillon %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a>{% endif %}</span>
         {% include outils-edition.html label=c.nom %}
       </span>
@@ -52,10 +53,10 @@ layout: default
     <div class="seances">
     {%- for s in d.seances -%}
       {%- if s.a_rediger -%}
-      <div class="stile todo"><small>Séance {{ forloop.index }} · à rédiger</small>{{ s.titre }}</div>
+      <div class="stile todo" data-seance="{{ forloop.index0 }}"><small>Séance {{ forloop.index }} · à rédiger</small>{{ s.titre }}{% include ordre.html quoi="la séance" %}</div>
       {%- else -%}
       <details class="seance" data-seance="{{ forloop.index0 }}"{% if forloop.first %} open{% endif %}>
-        <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}</summary>
+        <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}{% include ordre.html quoi="la séance" %}</summary>
         <div class="sdetail">
           {%- for f in s.champs %}{% unless f.champ == "Notes" %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endunless %}{% endfor %}
           {%- assign notes = s.champs | where: "champ", "Notes" | first -%}
@@ -70,7 +71,7 @@ layout: default
   </article>
   {%- else -%}
   <article class="capa empty" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
-    <div class="capa-top"><div class="capa-titre"><h3>{{ c.nom }}</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span>{% include outils-edition.html label=c.nom %}</span></div>
+    <div class="capa-top"><div class="capa-titre"><h3>{{ c.nom }}</h3></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label=c.nom %}</span></div>
     <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
   {%- endif -%}
@@ -89,7 +90,7 @@ layout: default
 
 <template id="modele-capa">
   <article class="capa empty" id="__ID__" data-id="__ID__" data-nom="__NOM__">
-    <div class="capa-top"><div class="capa-titre"><h3>__NOM__</h3></div><span class="capa-actions"><span class="pill todo">aucune séance</span>{% include outils-edition.html label="la capacité" %}</span></div>
+    <div class="capa-top"><div class="capa-titre"><h3>__NOM__</h3></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label="la capacité" %}</span></div>
     <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
 </template>

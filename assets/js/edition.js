@@ -97,6 +97,12 @@
 
   // ---- Affichage (même rendu que le gabarit Jekyll) ----
   var SVG = function (d) { return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>'; };
+  function ORDRE(quoi) {
+    return '<span class="ordre"><span class="poignee" title="Glisser pour déplacer ' + quoi + '" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">' +
+      [[9, 6], [15, 6], [9, 12], [15, 12], [9, 18], [15, 18]].map(function (c) { return '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="1.6"/>'; }).join("") + "</svg></span>" +
+      '<button type="button" class="btn-ordre" data-action="monter" title="Monter ' + quoi + '" aria-label="Monter ' + quoi + '">↑</button>' +
+      '<button type="button" class="btn-ordre" data-action="descendre" title="Descendre ' + quoi + '" aria-label="Descendre ' + quoi + '">↓</button></span>';
+  }
   var OUTILS_NOTE = '<span class="capa-tools outils-note">' +
     '<button type="button" class="btn-icone" data-action="note-edit" title="Modifier" aria-label="Modifier les notes de la séance">' + SVG("M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4") + "</button>" +
     '<button type="button" class="btn-icone ok" data-action="note-valider" title="Valider" aria-label="Valider" hidden>' + SVG("M5 12.5l4.5 4.5L19 7.5") + "</button>" +
@@ -118,9 +124,9 @@
     h += '</dl><div class="seances">';
     (d.seances || []).forEach(function (s, i) {
       if (s.a_rediger) {
-        h += '<div class="stile todo"><small>Séance ' + (i + 1) + " · à rédiger</small>" + esc(s.titre) + "</div>";
+        h += '<div class="stile todo" data-seance="' + i + '"><small>Séance ' + (i + 1) + " · à rédiger</small>" + esc(s.titre) + ORDRE("la séance") + "</div>";
       } else {
-        h += '<details class="seance" data-seance="' + i + '"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + '</summary><div class="sdetail">';
+        h += '<details class="seance" data-seance="' + i + '"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + ORDRE("la séance") + '</summary><div class="sdetail">';
         (s.champs || []).forEach(function (f) { if (f.champ !== "Notes") h += '<div class="row"><div class="k">' + esc(f.champ) + '</div><div class="v">' + champHtml(f) + "</div></div>"; });
         var notes = trouver(s.champs, "Notes");
         h += '<div class="row notes"><div class="k"><span>Notes</span>' + OUTILS_NOTE + '</div><div class="v">' + (notes && (notes.texte.length || notes.notes) ? champHtml(notes) : '<span class="vide">Aucune note</span>') + "</div></div>";
@@ -423,6 +429,18 @@
     if (b.closest(".board, .corbeille")) { actionAccueil(b); return; }
     var zc = zoneCapa(b);
     if (zc) { actionNouvelleCapa(zc, b); return; }
+    if (b.dataset.action === "monter" || b.dataset.action === "descendre") {
+      e.preventDefault(); // ne pas ouvrir / fermer la séance
+      var item = elementOrdonnable(b);
+      if (!item) return;
+      var freres = ordonnables(item.parentNode), i = freres.indexOf(item);
+      var j = b.dataset.action === "monter" ? i - 1 : i + 1;
+      if (j < 0 || j >= freres.length) return;
+      if (j < i) item.parentNode.insertBefore(item, freres[j]); else item.parentNode.insertBefore(item, freres[j].nextSibling);
+      validerOrdre(item);
+      var bt = item.querySelector('.ordre [data-action="' + b.dataset.action + '"]'); if (bt) bt.focus({ preventScroll: true });
+      return;
+    }
     var bloc = b.closest(".bloc-edit");
     if (bloc) { actionBloc(bloc, b); return; }
     var article = b.closest(".capa");
@@ -771,6 +789,81 @@
     var zn = document.querySelector(".nouvelle-capa-zone");
     if (zn) ouvrirNouvelleCapa(zn);
   }
+
+  // ---- Ordre des techniques et des séances (flèches et glisser-déposer) ----
+  function elementOrdonnable(el) {
+    var s = el.closest(".seance, .stile.todo");
+    if (s && s.closest(".seances")) return s;
+    var c = el.closest(".capa");
+    return c && c.parentNode && c.parentNode.classList.contains("capas") ? c : null;
+  }
+  function ordonnables(parent) {
+    return Array.prototype.filter.call(parent.children, function (x) { return x.matches(".capa, .seance, .stile.todo"); });
+  }
+  function validerOrdre(item) {
+    if (item.classList.contains("capa")) {
+      var bloc = competenceBloc();
+      if (!bloc) return;
+      var jeton = lireJeton();
+      var d = blocDonnees(bloc), parId = {};
+      (d.capacites || []).forEach(function (c) { parId[c.id] = c; });
+      d.capacites = ordonnables(item.parentNode).map(function (a) { return parId[a.dataset.id] || { nom: a.dataset.nom, id: a.dataset.id }; });
+      bloc.querySelector(".bloc-data").textContent = JSON.stringify(d);
+      if (jeton) envoyerBloc(bloc, d, jeton);
+      else { ecrireTampon(bloc.dataset.chemin, { t: Date.now(), data: d, enAttente: true }); etat(bloc, "erreur", "Ordre gardé dans ce navigateur : ouvrez le crayon pour saisir votre jeton GitHub, puis validez."); }
+      return;
+    }
+    var article = item.closest(".capa"), data = donnees(article);
+    var ouvertes = {};
+    var ordre = ordonnables(item.parentNode).map(function (x) { var k = +x.dataset.seance; ouvertes[k] = x.open; return k; });
+    data.seances = ordre.map(function (k) { return data.seances[k]; });
+    appliquer(article, data);
+    var tuiles = ordonnables(article.querySelector(".seances"));
+    ordre.forEach(function (k, n) { if (tuiles[n] && tuiles[n].tagName === "DETAILS") tuiles[n].open = !!ouvertes[k]; });
+    var j = lireJeton();
+    if (j) mettreEnFile(article, data, j);
+    else { ecrireTampon(article.dataset.id, { t: Date.now(), data: data, enAttente: true }); etat(article, "erreur", "Ordre gardé dans ce navigateur : ouvrez le crayon pour saisir votre jeton GitHub, puis validez."); }
+  }
+  // Glisser-déposer à la souris ou au doigt, par la poignée.
+  var glisse = null;
+  document.addEventListener("pointerdown", function (e) {
+    var p = e.target.closest(".poignee");
+    if (!p || e.button > 0) return;
+    var item = elementOrdonnable(p);
+    if (!item) return;
+    e.preventDefault();
+    glisse = { item: item, parent: item.parentNode, avant: ordonnables(item.parentNode).indexOf(item) };
+    item.classList.add("en-glisse");
+    document.body.classList.add("glisse-actif");
+  });
+  document.addEventListener("pointermove", function (e) {
+    if (!glisse) return;
+    e.preventDefault();
+    var freres = ordonnables(glisse.parent).filter(function (x) { return x !== glisse.item; });
+    var cible = null;
+    for (var i = 0; i < freres.length; i++) {
+      var r = freres[i].getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { cible = freres[i]; break; }
+    }
+    if (cible) { if (glisse.item.nextSibling !== cible) glisse.parent.insertBefore(glisse.item, cible); }
+    else {
+      var dernier = freres[freres.length - 1];
+      if (dernier && dernier.nextSibling !== glisse.item) glisse.parent.insertBefore(glisse.item, dernier.nextSibling);
+    }
+    // défilement automatique près des bords
+    if (e.clientY < 60) window.scrollBy(0, -12); else if (e.clientY > window.innerHeight - 60) window.scrollBy(0, 12);
+  }, { passive: false });
+  function finGlisse() {
+    if (!glisse) return;
+    var g = glisse; glisse = null;
+    g.item.classList.remove("en-glisse");
+    document.body.classList.remove("glisse-actif");
+    if (ordonnables(g.parent).indexOf(g.item) !== g.avant) validerOrdre(g.item);
+  }
+  document.addEventListener("pointerup", finGlisse);
+  document.addEventListener("pointercancel", finGlisse);
+  // Un clic sur la poignée ne doit pas ouvrir / fermer la séance.
+  document.addEventListener("click", function (e) { if (e.target.closest(".poignee")) e.preventDefault(); }, true);
 
   function reprendreBlocs() {
     Array.prototype.forEach.call(document.querySelectorAll(".bloc-edit[data-chemin]"), function (bloc) {
