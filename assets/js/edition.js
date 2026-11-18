@@ -126,7 +126,7 @@
       if (s.a_rediger) {
         h += '<div class="stile todo" data-seance="' + i + '"><small>Séance ' + (i + 1) + " · à rédiger</small>" + esc(s.titre) + ORDRE("la séance") + "</div>";
       } else {
-        h += '<details class="seance" data-seance="' + i + '"' + (i === 0 ? " open" : "") + '><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + ORDRE("la séance") + '</summary><div class="sdetail">';
+        h += '<details class="seance" data-seance="' + i + '"><summary class="stile"><small>Séance ' + (i + 1) + "</small>" + esc(s.titre) + ORDRE("la séance") + '</summary><div class="sdetail">';
         (s.champs || []).forEach(function (f) { if (f.champ !== "Notes") h += '<div class="row"><div class="k">' + esc(f.champ) + '</div><div class="v">' + champHtml(f) + "</div></div>"; });
         var notes = trouver(s.champs, "Notes");
         h += '<div class="row notes"><div class="k"><span>Notes</span>' + OUTILS_NOTE + '</div><div class="v">' + (notes && (notes.texte.length || notes.notes) ? champHtml(notes) : '<span class="vide">Aucune note</span>') + "</div></div>";
@@ -446,6 +446,8 @@
     var article = b.closest(".capa");
     if (!article) return;
     var a = b.dataset.action;
+    if (a === "plier") { plier(article, !article.classList.contains("repliee")); return; }
+    if (a === "edit" || a === "nouvelle-seance") plier(article, false);
     if (a.indexOf("note-") === 0) { actionNote(article, b.closest(".row.notes"), a); return; }
     if (a === "nouvelle-seance") {
       var neuve = !article.querySelector(".capa-data");
@@ -479,6 +481,19 @@
       b.hidden = true;
       article.querySelector(".ed-jeton").hidden = false;
     }
+  });
+
+  // ---- Techniques repliées / dépliées ----
+  function plier(article, replier) {
+    article.classList.toggle("repliee", replier);
+    var b = article.querySelector(".btn-plier"); if (b) b.setAttribute("aria-expanded", replier ? "false" : "true");
+  }
+  // Un clic sur le nom de la technique la déplie ou la replie aussi.
+  document.addEventListener("click", function (e) {
+    var h = e.target.closest(".capa-titre h3, .capa-titre .eyebrow");
+    if (!h) return;
+    var article = h.closest(".capa");
+    if (article && !article.classList.contains("en-edition")) plier(article, !article.classList.contains("repliee"));
   });
 
   // ---- Édition des seules notes d'une séance ----
@@ -1128,7 +1143,10 @@
     if (!id) return;
     var el = document.getElementById(id);
     if (!el) return;
-    for (var p = el; p; p = p.parentElement) if (p.tagName === "DETAILS") p.open = true;
+    for (var p = el; p; p = p.parentElement) {
+      if (p.tagName === "DETAILS") p.open = true;
+      if (p.classList && p.classList.contains("repliee")) plier(p, false);
+    }
     el.scrollIntoView({ block: "start" });
     el.classList.add("ancre-visee");
     setTimeout(function () { el.classList.remove("ancre-visee"); }, 2500);

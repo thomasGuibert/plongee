@@ -409,3 +409,14 @@ details[open] > .stile small { color: var(--on-yellow); }
 :target, .ancre-visee { scroll-margin-top: 16px; }
 .ancre-visee { box-shadow: 0 0 0 3px var(--yellow) !important; transition: box-shadow .3s; }
 @media (max-width: 560px) { .stile { padding-right: 12px; padding-bottom: 40px; } .stile > .ordre { top: auto; bottom: 4px; transform: none; } }
+
+/* Techniques repliées par défaut */
+.capa.repliee > .capa-body { display: none; }
+.capa.repliee { padding-bottom: 10px; }
+.capa-titre h3, .capa-titre .eyebrow { cursor: pointer; }
+.capa-titre h3:hover { color: var(--accent); }
+.btn-plier { width: 28px; height: 28px; flex: none; padding: 0; margin-top: 2px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; transition: transform .15s; transform: rotate(90deg); }
+.capa.repliee .btn-plier { transform: rotate(0deg); }
+.btn-plier:hover { color: var(--accent); border-color: var(--line); }
+.btn-plier:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) { .btn-plier { transition: none; } }

@@ -34,10 +34,10 @@ layout: default
 {%- for c in page.capacites -%}
   {%- assign d = site.data.capacites[c.id] -%}
   {%- if d -%}
-  <article class="capa" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
+  <article class="capa repliee" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
     <script type="application/json" class="capa-data">{{ d | jsonify }}</script>
     <div class="capa-top">
-      <div class="capa-titre"><div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div></div>
+      <div class="capa-titre"><button type="button" class="btn-plier" data-action="plier" aria-expanded="false" title="Déplier ou replier la technique" aria-label="Déplier ou replier la technique"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div><div class="eyebrow">Capacité · objectif intermédiaire</div><h3>{{ c.nom }}</h3></div></div>
       <span class="capa-actions">
         {% include ordre.html quoi="la technique" %}
         <span class="pill">{{ d.seances.size }} séance{% if d.seances.size > 1 %}s{% endif %}{% if d.brouillon %} · <a href="{{ '/brouillons/' | append: d.brouillon | relative_url }}">brouillon PDF</a>{% endif %}</span>
@@ -55,7 +55,7 @@ layout: default
       {%- if s.a_rediger -%}
       <div class="stile todo" data-seance="{{ forloop.index0 }}"><small>Séance {{ forloop.index }} · à rédiger</small>{{ s.titre }}{% include ordre.html quoi="la séance" %}</div>
       {%- else -%}
-      <details class="seance" data-seance="{{ forloop.index0 }}"{% if forloop.first %} open{% endif %}>
+      <details class="seance" data-seance="{{ forloop.index0 }}">
         <summary class="stile"><small>Séance {{ forloop.index }}</small>{{ s.titre }}{% include ordre.html quoi="la séance" %}</summary>
         <div class="sdetail">
           {%- for f in s.champs %}{% unless f.champ == "Notes" %}<div class="row"><div class="k">{{ f.champ }}</div><div class="v">{% include champ.html f=f %}</div></div>{% endunless %}{% endfor %}
@@ -70,8 +70,8 @@ layout: default
     </div>
   </article>
   {%- else -%}
-  <article class="capa empty" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
-    <div class="capa-top"><div class="capa-titre"><h3>{{ c.nom }}</h3></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label=c.nom %}</span></div>
+  <article class="capa empty repliee" id="{{ c.id }}" data-id="{{ c.id }}" data-nom="{{ c.nom | escape }}">
+    <div class="capa-top"><div class="capa-titre"><button type="button" class="btn-plier" data-action="plier" aria-expanded="false" title="Déplier ou replier la technique" aria-label="Déplier ou replier la technique"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div><h3>{{ c.nom }}</h3></div></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label=c.nom %}</span></div>
     <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
   {%- endif -%}
@@ -90,7 +90,7 @@ layout: default
 
 <template id="modele-capa">
   <article class="capa empty" id="__ID__" data-id="__ID__" data-nom="__NOM__">
-    <div class="capa-top"><div class="capa-titre"><h3>__NOM__</h3></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label="la capacité" %}</span></div>
+    <div class="capa-top"><div class="capa-titre"><button type="button" class="btn-plier" data-action="plier" aria-expanded="true" title="Déplier ou replier la technique" aria-label="Déplier ou replier la technique"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><div><h3>__NOM__</h3></div></div><span class="capa-actions">{% include ordre.html quoi="la technique" %}<span class="pill todo">aucune séance</span>{% include outils-edition.html label="la capacité" %}</span></div>
     <div class="capa-body"><div class="seances"><button type="button" class="stile add" data-action="nouvelle-seance"><small>Séance</small>+ Nouvelle séance</button></div></div>
   </article>
 </template>
