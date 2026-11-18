@@ -31,7 +31,7 @@ seances:
         texte:
           - "Ex1: Apnée statique sur inspiration 20sec"
           - "Ex2: Apnée statique sur inspiration 1min"
-          - "Ex3: Apnée dynamique sur 10m"
+          - "Ex3: Apnée dynamique en surface sur 10m"
       - champ: "Points clés à donner aux élèves"
         texte:
           - "Vider tout le CO2"
