@@ -1,7 +1,7 @@
 blanc:
   - champ: "Objectif final"
     texte:
-      - "Se déplacer sur 10m en apnée sans s'essouffler"
+      - "Se déplacer sur 10m en apnée"
   - champ: "Position dans la formation"
     texte:
       - "Début"
@@ -12,7 +12,6 @@ blanc:
     texte:
       - "Apnée 1 minutes en statique"
       - "Apnée sur 10 mètres"
-      - "Pas d'essoufflement"
   - champ: "Organisation"
     texte:
       - "Bord de la piscine"
@@ -22,7 +21,7 @@ seances:
     champs:
       - champ: "Objectif de séance"
         texte:
-          - "Se déplacer sur 10m en apnée sans s'essouffler"
+          - "Se déplacer sur 10m en apnée"
       - champ: "Justification"
         texte:
           - "LRE"
@@ -52,4 +51,4 @@ fautes:
   champ: "Fautes classiques et correctifs"
   texte:
     - "Commencer une apnée essoufflé: verif avec apnée de 3s"
-    - "Se dépêcher de faire les 10 mètres et terminer essoufflé"
+    - "Se dépêcher de faire les 10 mètres et ne pas terminer l'exercice"
